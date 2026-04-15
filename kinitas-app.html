@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"/>
+<title>Kinitas Car Wash</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --navy:#001e42;--navy2:#003368;--teal:#006875;--teal-bg:#e0f7fa;--teal-mid:#80deea;
+  --aqua:#00c9a7;--gold:#e8a000;--gold-bg:#fff8ec;--gold-border:#ffe082;
+  --surf:#f9f9fe;--surf2:#f4f3f8;--surf3:#e8e8ed;
+  --text:#1a1c1f;--muted:#43474f;--hint:#737780;
+  --border:#e2e2e7;--border2:#c3c6d1;--white:#fff;
+  --danger:#ba1a1a;--danger-bg:#ffdad6;--danger-border:#ffb4ab;
+}
+html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:#e8eaed;color:var(--text);-webkit-font-smoothing:antialiased}
+/* ── App shell ── */
+#app{display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px 16px;background:#e8eaed}
+.phone{width:375px;min-height:756px;max-height:756px;background:var(--surf);border-radius:40px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.22);display:flex;flex-direction:column;position:relative}
+/* ── Status bar ── */
+.status-bar{height:44px;flex-shrink:0;background:var(--navy);display:flex;align-items:flex-end;justify-content:space-between;padding:0 24px 8px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.55);font-family:monospace;z-index:10;position:relative}
+/* ── Screens ── */
+.screen{display:none;flex-direction:column;flex:1;overflow:hidden}
+.screen.active{display:flex}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden}
+.scroll::-webkit-scrollbar{display:none}
+/* ── Hero dark ── */
+.hero-dark{background:var(--navy);padding:20px 20px 28px;position:relative;overflow:hidden;flex-shrink:0}
+.hero-ring{position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,0.05);pointer-events:none}
+.ring-lg{width:280px;height:280px;top:-110px;right:-70px}
+.ring-sm{width:140px;height:140px;top:-20px;right:30px}
+.hero-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.4);margin-bottom:3px;position:relative;z-index:1}
+.hero-title{font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:14px;position:relative;z-index:1}
+.hero-stats{display:flex;gap:8px;position:relative;z-index:1}
+.hero-stat{background:rgba(255,255,255,.07);border-radius:12px;padding:10px 12px;flex:1}
+.hero-stat-val{font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:#fff}
+.hero-stat-lbl{font-size:9px;color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:2px}
+/* ── White card pull-up ── */
+.card-pull{background:var(--white);border-radius:24px 24px 0 0;margin-top:-20px;padding:28px 22px 36px;flex:1;overflow-y:auto;position:relative;z-index:2}
+.card-pull::-webkit-scrollbar{display:none}
+/* ── Card ── */
+.card{background:var(--white);border-radius:18px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:12px}
+/* ── Section ── */
+.sec{padding:0 14px;margin-top:18px}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sec-title{font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy)}
+.sec-link{font-size:12px;font-weight:600;color:var(--teal);cursor:pointer}
+/* ── Inputs ── */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--hint);margin-bottom:6px}
+.input{width:100%;height:50px;border:1.5px solid var(--border);border-radius:13px;padding:0 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--text);background:var(--surf2);outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
+.input:focus{border-color:var(--teal);background:var(--white);box-shadow:0 0 0 3px rgba(0,104,117,.1)}
+.input.err{border-color:var(--danger)}
+.input::placeholder{color:#b8bfcc}
+.input-plate{font-family:'DM Mono',monospace;font-size:18px;font-weight:700;text-align:center;text-transform:uppercase;letter-spacing:3px}
+.input-code{font-family:'DM Mono',monospace;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:3px}
+.pw-wrap{position:relative}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:28px;height:28px;background:none;border:none;cursor:pointer;color:var(--hint);display:flex;align-items:center;justify-content:center;font-size:16px}
+/* ── Buttons ── */
+.btn{display:flex;align-items:center;justify-content:center;width:100%;height:52px;border-radius:14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border:none;transition:filter .15s;margin-bottom:10px;user-select:none}
+.btn:active{transform:scale(.98)}
+.btn-navy{background-color:var(--navy)!important;color:#fff!important}
+.btn-navy:hover{filter:brightness(1.15)}
+.btn-teal{background-color:var(--teal)!important;color:#fff!important}
+.btn-teal:hover{filter:brightness(1.1)}
+.btn-aqua{background-color:var(--aqua)!important;color:var(--navy)!important}
+.btn-aqua:hover{filter:brightness(1.08)}
+.btn-surface{background-color:var(--surf3)!important;color:var(--navy)!important;border:1px solid var(--border)!important;font-size:13px;height:44px}
+.btn-ghost{background:none;color:var(--hint);font-size:13px;height:44px}
+.btn-danger{background-color:var(--danger)!important;color:#fff!important}
+.btn-sm{height:40px;border-radius:11px;font-size:13px;padding:0 16px;width:auto;display:inline-flex}
+/* ── Chips ── */
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:99px;padding:3px 10px;font-size:11px;font-weight:700}
+.chip-teal{background-color:var(--teal-bg)!important;color:#004f58!important}
+.chip-gold{background-color:var(--gold-bg)!important;color:#7a4f00!important}
+.chip-red{background-color:var(--danger-bg)!important;color:#93000a!important}
+.chip-grey{background-color:var(--surf3)!important;color:var(--hint)!important}
+/* ── Alert ── */
+.alert{display:flex;align-items:flex-start;gap:9px;padding:11px 13px;border-radius:12px;margin-bottom:14px;font-size:13px;font-weight:500;line-height:1.4;animation:fadeIn .18s ease}
+.alert-err{background:var(--danger-bg);border:1px solid var(--danger-border);color:#93000a}
+.alert-ok{background:var(--teal-bg);border:1px solid rgba(0,104,117,.25);color:#004f58}
+/* ── Bottom nav ── */
+.bnav{flex-shrink:0;background:rgba(255,255,255,.97);border-top:1px solid var(--border);display:flex;justify-content:space-around;align-items:center;padding:8px 4px 16px;z-index:10}
+.ni{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:5px 10px;border-radius:99px;min-width:52px;transition:background .15s}
+.ni.active{background-color:var(--teal-bg)!important}
+.ni-ico{font-size:20px;line-height:1}
+.ni-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--hint)}
+.ni.active .ni-lbl{color:var(--teal)}
+/* ── Modal ── */
+.modal-overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:flex-end;border-radius:40px;overflow:hidden}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:24px 24px 0 0;padding:24px 22px 36px;width:100%;max-height:80%;overflow-y:auto}
+.modal::-webkit-scrollbar{display:none}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 18px}
+.modal-title{font-family:'Noto Serif',serif;font-size:18px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.modal-sub{font-size:13px;color:var(--hint);margin-bottom:16px;line-height:1.5}
+.modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.mb{height:48px;border-radius:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;border:none;display:flex;align-items:center;justify-content:center}
+/* ── Row items ── */
+.list-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--border)}
+.list-row:last-child{border-bottom:none}
+.row-icon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.row-body{flex:1;min-width:0}
+.row-title{font-size:14px;font-weight:600;color:var(--text)}
+.row-sub{font-size:11px;color:var(--hint);margin-top:2px}
+.row-right{flex-shrink:0;text-align:right}
+/* ── Plate badge ── */
+.plate{background-color:var(--navy)!important;color:#fff!important;border-radius:9px;padding:8px 14px;font-family:'DM Mono',monospace;font-size:16px;font-weight:700;letter-spacing:3px;display:inline-block}
+/* ── Progress bar ── */
+.pbar{height:7px;background:var(--border);border-radius:99px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:99px;transition:width .4s}
+/* ── Step indicator ── */
+.step-bar{display:flex;gap:4px;margin-bottom:10px}
+.step-seg{flex:1;height:3px;border-radius:99px;background:var(--surf3);transition:background .3s}
+.step-seg.done{background:var(--aqua)}
+.step-seg.active{background:var(--navy)}
+/* ── Toggle switch ── */
+.toggle{width:44px;height:26px;border-radius:99px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--teal)}
+.toggle.off{background:var(--border2)}
+.toggle-knob{position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:3px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.toggle.on .toggle-knob{left:21px}
+.toggle.off .toggle-knob{left:3px}
+/* ── Radio ── */
+.radio-opt{display:flex;align-items:center;gap:12px;padding:13px 16px;border:1.5px solid var(--border);border-radius:14px;margin-bottom:8px;cursor:pointer;transition:border-color .15s,background .15s}
+.radio-opt.sel{border-color:var(--navy);background:var(--surf2)}
+.radio-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.radio-opt.sel .radio-dot{border-color:var(--navy);background:var(--navy)}
+.radio-opt.sel .radio-dot::after{content:'';width:7px;height:7px;border-radius:50%;background:#fff;display:block}
+/* ── Animations ── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes iconPop{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0deg);opacity:1}}
+@keyframes wiggle{0%,100%{transform:rotate(-4deg) translateY(0)}25%{transform:rotate(4deg) translateY(-8px)}75%{transform:rotate(3deg) translateY(-9px)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,201,167,.3)}50%{box-shadow:0 0 0 14px rgba(0,201,167,0)}}
+.anim-slide{animation:slideUp .35s ease both}
+.anim-pop{animation:iconPop .4s cubic-bezier(.175,.885,.32,1.275) both}
+.anim-wiggle{animation:wiggle 1.1s ease infinite}
+</style>
+</head>
+<body>
+<div id="app">
+<div class="phone" id="phone">
+  <div class="status-bar"><span>9:41</span><span>●●●● ▓</span></div>
+
+  <!-- ════════════════════════════════════════
+       SCREEN: LOGIN
+  ════════════════════════════════════════ -->
+  <div class="screen active" id="scr-login" style="background:var(--navy)">
+    <div style="background:var(--navy);padding:20px 24px 44px;position:relative;overflow:hidden;flex-shrink:0">
+      <div class="hero-ring ring-lg"></div><div class="hero-ring ring-sm"></div>
+      <div style="display:flex;align-items:center;gap:11px;margin-bottom:28px;position:relative;z-index:1">
+        <div style="width:40px;height:40px;border-radius:12px;background:var(--teal);display:flex;align-items:center;justify-content:center">
+          <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><path d="M4 20C4 20 8 10 14 10C20 10 24 20 24 20" stroke="white" stroke-width="2.5" stroke-linecap="round"/><circle cx="8" cy="22" r="2.5" fill="white"/><circle cx="20" cy="22" r="2.5" fill="white"/></svg>
+        </div>
+        <div><div style="font-family:'Noto Serif',serif;font-size:20px;font-weight:700;color:#fff">Kinitas</div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">Car Wash Membership</div></div>
+      </div>
+      <div style="position:relative;z-index:1">
+        <div style="font-family:'Noto Serif',serif;font-size:26px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:6px">Welcome back.</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.42)">Sign in to manage your membership</div>
+      </div>
+    </div>
+    <div class="card-pull">
+      <div id="login-err" class="alert alert-err" style="display:none"></div>
+      <div class="field"><label>Email address</label><input class="input" id="login-email" type="email" placeholder="you@email.com" autocapitalize="none" inputmode="email"/></div>
+      <div class="field"><div class="pw-wrap"><input class="input" id="login-pw" type="password" placeholder="••••••••"/><span class="pw-eye" onclick="togglePw('login-pw',this)">👁</span></div></div>
+      <div style="text-align:right;margin:-8px 0 16px"><span style="font-size:13px;font-weight:600;color:#305ea0;cursor:pointer" onclick="goTo('scr-forgotpw')">Forgot password?</span></div>
+      <div class="btn btn-navy" role="button" onclick="doLogin()">Sign In</div>
+      <div style="display:flex;align-items:center;gap:10px;margin:16px 0"><span style="flex:1;height:1px;background:var(--border)"></span><span style="font-size:12px;color:var(--hint)">new to Kinitas?</span><span style="flex:1;height:1px;background:var(--border)"></span></div>
+      <div class="btn btn-surface" role="button" onclick="goTo('scr-register')">Create an account</div>
+    </div>
+    <div style="background:var(--white);display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-top:1px solid var(--border)">
+      <span style="font-size:11px;color:var(--hint);font-weight:600">Jacksonville</span>
+      <span style="width:3px;height:3px;border-radius:50%;background:var(--border)"></span>
+      <span style="font-size:11px;color:var(--hint);font-weight:600">Tampa</span>
+      <span style="width:3px;height:3px;border-radius:50%;background:var(--border)"></span>
+      <span style="font-size:11px;color:var(--hint);font-weight:600">Orlando</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SCREEN: REGISTER (4 steps)
+  ════════════════════════════════════════ -->
+  <div class="screen" id="scr-register" style="background:var(--navy)">
+    <div style="background:var(--navy);padding:16px 20px 40px;position:relative;overflow:hidden;flex-shrink:0">
+      <div class="hero-ring ring-lg"></div>
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px;position:relative;z-index:1">
+        <div style="width:32px;height:32px;border-radius:9px;background:var(--teal);display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="goTo('scr-login')">←</div>
+        <div style="font-family:'Noto Serif',serif;font-size:16px;font-weight:700;color:#fff">Kinitas</div>
+      </div>
+      <div style="position:relative;z-index:1" id="reg-steps">
+        <div class="step-bar"><div class="step-seg active" id="rs1"></div><div class="step-seg" id="rs2"></div><div class="step-seg" id="rs3"></div><div class="step-seg" id="rs4"></div></div>
+        <div style="display:flex;justify-content:space-between">
+          <span id="reg-step-lbl" style="font-size:13px;font-weight:700;color:#fff">Account Details</span>
+          <span id="reg-step-num" style="font-size:12px;color:rgba(255,255,255,.45)">Step 1 of 4</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-pull" id="reg-body">
+      <!-- Step 1 -->
+      <div id="reg-s1">
+        <div style="font-family:'Noto Serif',serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:4px">Create your account</div>
+        <div style="font-size:13px;color:var(--hint);margin-bottom:18px">Start your Kinitas membership today</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="field"><label>First Name</label><input class="input" id="reg-fn" placeholder="First"/></div>
+          <div class="field"><label>Last Name</label><input class="input" id="reg-ln" placeholder="Last"/></div>
+        </div>
+        <div class="field"><label>Email</label><input class="input" id="reg-email" type="email" placeholder="you@email.com" autocapitalize="none" inputmode="email"/></div>
+        <div class="field"><label>Password</label><div class="pw-wrap"><input class="input" id="reg-pw" type="password" placeholder="At least 8 characters"/><span class="pw-eye" onclick="togglePw('reg-pw',this)">👁</span></div></div>
+        <div class="field"><label>Home Location</label><select class="input" style="cursor:pointer"><option>Jacksonville, FL</option><option>Tampa, FL</option><option>Orlando, FL</option></select></div>
+        <div class="btn btn-navy" role="button" onclick="regStep(2)">Continue →</div>
+        <div class="btn btn-ghost" role="button" onclick="goTo('scr-login')">Already have an account</div>
+      </div>
+      <!-- Step 2 -->
+      <div id="reg-s2" style="display:none">
+        <div style="font-family:'Noto Serif',serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:4px">Register your plate</div>
+        <div style="font-size:13px;color:var(--hint);margin-bottom:16px">The kiosk uses your plate to identify your car</div>
+        <div style="background:var(--surf2);border-radius:12px;padding:12px 14px;border-left:3px solid var(--teal);margin-bottom:16px;display:flex;gap:9px">
+          <span style="font-size:16px;flex-shrink:0">🚗</span>
+          <p style="font-size:12px;color:var(--muted);line-height:1.6">License Plate Recognition (LPR) automatically identifies your car. <strong style="color:var(--navy)">One plate per membership.</strong> Change once per billing cycle.</p>
+        </div>
+        <div class="field"><label>License Plate</label><input class="input input-plate" id="reg-plate" placeholder="ABC 1234" maxlength="9" oninput="this.value=this.value.toUpperCase()"/></div>
+        <div class="field"><label>State</label><select class="input" style="cursor:pointer"><option>Florida</option><option>Georgia</option><option>Alabama</option><option>South Carolina</option></select></div>
+        <div class="btn btn-navy" role="button" onclick="regStep(3)">Continue →</div>
+      </div>
+      <!-- Step 3 -->
+      <div id="reg-s3" style="display:none">
+        <div style="font-family:'Noto Serif',serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:4px">Choose your plan</div>
+        <div style="font-size:13px;color:var(--hint);margin-bottom:16px">All plans include gifts, badges, points & referrals.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px" id="plan-grid">
+          <div class="plan-card" data-plan="BASIC" data-price="8" onclick="selectPlan(this)" style="background:#eff6ff;border-radius:15px;padding:14px;cursor:pointer;border:2px solid transparent;position:relative">
+            <span style="font-size:20px;display:block;margin-bottom:7px">🚗</span>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)">BASIC</div>
+            <div style="font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:var(--navy)">$8</div>
+            <div style="font-size:10px;color:var(--hint)">/month</div>
+          </div>
+          <div class="plan-card selected" data-plan="PLUS" data-price="12" onclick="selectPlan(this)" style="background:var(--teal-bg);border-radius:15px;padding:14px;cursor:pointer;border:2px solid var(--teal);position:relative">
+            <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap">Popular</div>
+            <div style="position:absolute;top:8px;right:8px;width:18px;height:18px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700">✓</div>
+            <span style="font-size:20px;display:block;margin-bottom:7px">✨</span>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)">PLUS</div>
+            <div style="font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:var(--navy)">$12</div>
+            <div style="font-size:10px;color:var(--hint)">/month</div>
+          </div>
+          <div class="plan-card" data-plan="SUPER" data-price="16" onclick="selectPlan(this)" style="background:var(--gold-bg);border-radius:15px;padding:14px;cursor:pointer;border:2px solid transparent;position:relative">
+            <span style="font-size:20px;display:block;margin-bottom:7px">💎</span>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)">SUPER</div>
+            <div style="font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:var(--navy)">$16</div>
+            <div style="font-size:10px;color:var(--hint)">/month</div>
+          </div>
+          <div class="plan-card" data-plan="PREMIUM" data-price="22" onclick="selectPlan(this)" style="background:#fdf2f8;border-radius:15px;padding:14px;cursor:pointer;border:2px solid transparent;position:relative">
+            <span style="font-size:20px;display:block;margin-bottom:7px">👑</span>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)">PREMIUM</div>
+            <div style="font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:var(--navy)">$22</div>
+            <div style="font-size:10px;color:var(--hint)">/month</div>
+          </div>
+        </div>
+        <div class="btn btn-navy" role="button" id="plan-btn" onclick="regStep(4)">Continue with PLUS · $12/mo →</div>
+      </div>
+      <!-- Step 4 -->
+      <div id="reg-s4" style="display:none">
+        <div style="font-family:'Noto Serif',serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:4px">Payment details</div>
+        <div style="font-size:13px;color:var(--hint);margin-bottom:16px">You won't be charged until you confirm.</div>
+        <div id="reg-summary" style="background:var(--surf2);border-radius:13px;padding:14px;margin-bottom:16px"></div>
+        <div class="field"><label>Name on Card</label><input class="input" placeholder="Your full name"/></div>
+        <div style="margin-bottom:14px">
+          <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--hint);margin-bottom:6px">Card Details</label>
+          <div style="height:50px;border:1.5px solid var(--border);border-radius:13px;padding:0 14px;background:var(--surf2);display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:14px;color:#b8bfcc">Card number</span><span style="font-size:11px;color:var(--hint)">VISA MC AMEX</span>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+          <div style="height:50px;border:1.5px solid var(--border);border-radius:13px;padding:0 14px;background:var(--surf2);display:flex;align-items:center"><span style="font-size:14px;color:#b8bfcc">MM / YY</span></div>
+          <div style="height:50px;border:1.5px solid var(--border);border-radius:13px;padding:0 14px;background:var(--surf2);display:flex;align-items:center"><span style="font-size:14px;color:#b8bfcc">CVC</span></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <input id="reg-promo" class="input input-code" placeholder="PROMO CODE" style="flex:1;height:46px;font-size:13px;letter-spacing:1px" maxlength="16" oninput="this.value=this.value.toUpperCase()"/>
+          <div class="btn btn-surface btn-sm" role="button" style="height:46px">Apply</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px">
+          <div id="terms-chk" onclick="toggleTerms()" style="width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border2);flex-shrink:0;margin-top:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s"></div>
+          <p style="font-size:12px;color:var(--hint);line-height:1.5">I agree to the <a href="#" style="color:#305ea0">Terms of Service</a> and <a href="#" style="color:#305ea0">Privacy Policy</a>. Membership renews automatically each month.</p>
+        </div>
+        <div class="btn btn-navy" role="button" onclick="goTo('scr-dashboard')">Start Membership →</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SCREEN: FORGOT PASSWORD
+  ════════════════════════════════════════ -->
+  <div class="screen" id="scr-forgotpw" style="background:var(--navy)">
+    <div style="background:var(--navy);padding:16px 20px 40px;position:relative;overflow:hidden;flex-shrink:0">
+      <div class="hero-ring ring-lg"></div>
+      <div style="cursor:pointer;margin-bottom:16px;position:relative;z-index:1" onclick="goTo('scr-login')">
+        <div style="width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">←</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;position:relative;z-index:1">
+        <div style="width:32px;height:32px;border-radius:9px;background:var(--teal);display:flex;align-items:center;justify-content:center">
+          <svg width="17" height="17" viewBox="0 0 28 28" fill="none"><path d="M4 20C4 20 8 10 14 10C20 10 24 20 24 20" stroke="white" stroke-width="2.5" stroke-linecap="round"/><circle cx="8" cy="22" r="2.5" fill="white"/><circle cx="20" cy="22" r="2.5" fill="white"/></svg>
+        </div>
+        <div style="font-family:'Noto Serif',serif;font-size:16px;font-weight:700;color:#fff">Kinitas</div>
+      </div>
+    </div>
+    <!-- Email entry sub-screen -->
+    <div class="card-pull" id="fp-s1">
+      <div style="font-family:'Noto Serif',serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:4px">Forgot password?</div>
+      <div style="font-size:13px;color:var(--hint);margin-bottom:18px">Enter your email and we'll send a reset link. Expires in 30 minutes.</div>
+      <div class="field"><label>Email address</label><input class="input" id="fp-email" type="email" placeholder="you@email.com" autocapitalize="none" inputmode="email"/></div>
+      <div class="btn btn-navy" role="button" onclick="fpSend()">Send Reset Link</div>
+      <div class="btn btn-ghost" role="button" onclick="goTo('scr-login')">Back to Sign In</div>
+    </div>
+    <!-- Email sent sub-screen -->
+    <div id="fp-s2" style="display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 28px;background:var(--navy);position:relative">
+      <div style="position:absolute;width:500px;height:500px;border-radius:50%;border:1px solid rgba(255,255,255,.05);top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+      <div style="position:absolute;width:300px;height:300px;border-radius:50%;border:1px solid rgba(255,255,255,.05);top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+      <div class="anim-pop" style="width:72px;height:72px;border-radius:22px;background:rgba(0,201,167,.15);border:1px solid rgba(0,201,167,.3);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 20px;position:relative;z-index:1">✉️</div>
+      <div style="font-family:'Noto Serif',serif;font-size:24px;font-weight:700;color:#fff;margin-bottom:10px;position:relative;z-index:1">Check your inbox</div>
+      <div style="font-size:14px;color:rgba(255,255,255,.45);margin-bottom:6px;position:relative;z-index:1">We've sent a reset link to</div>
+      <div id="fp-sent-email" style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--aqua);margin-bottom:32px;position:relative;z-index:1"></div>
+      <div style="width:100%;position:relative;z-index:1">
+        <div class="btn btn-aqua" role="button" onclick="fpReset()">Open reset link →</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.3);cursor:pointer;margin-top:8px" onclick="this.textContent='✓ Resent!';setTimeout(()=>this.textContent=`Didn't get it? Resend email`,3000)">Didn't get it? Resend email</div>
+      </div>
+    </div>
+    <!-- Reset form sub-screen -->
+    <div id="fp-s3" style="display:none" class="card-pull">
+      <div style="font-family:'Noto Serif',serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:4px">Create new password</div>
+      <div style="font-size:13px;color:var(--hint);margin-bottom:16px">Choose a strong password for your account.</div>
+      <div class="field">
+        <label>New Password</label>
+        <div class="pw-wrap"><input class="input" id="fp-pw1" type="password" placeholder="New password" oninput="pwStrength(this.value)"/><span class="pw-eye" onclick="togglePw('fp-pw1',this)">👁</span></div>
+        <div id="str-bars" style="display:flex;gap:4px;margin-top:8px">[<div style="flex:1;height:4px;border-radius:99px;background:var(--surf3)" id="sb1"></div><div style="flex:1;height:4px;border-radius:99px;background:var(--surf3)" id="sb2"></div><div style="flex:1;height:4px;border-radius:99px;background:var(--surf3)" id="sb3"></div><div style="flex:1;height:4px;border-radius:99px;background:var(--surf3)" id="sb4"></div>]</div>
+        <div id="str-lbl" style="font-size:11px;font-weight:600;margin-top:5px;color:var(--hint)">Enter a password</div>
+      </div>
+      <div class="field"><label>Confirm Password</label><div class="pw-wrap"><input class="input" id="fp-pw2" type="password" placeholder="Confirm password"/><span class="pw-eye" onclick="togglePw('fp-pw2',this)">👁</span></div></div>
+      <div class="btn btn-navy" role="button" onclick="fpConfirm()">Reset Password</div>
+    </div>
+    <!-- Success sub-screen -->
+    <div id="fp-s4" style="display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 28px;background:var(--white)">
+      <div class="anim-pop" style="width:72px;height:72px;border-radius:50%;background:var(--teal-bg);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 18px">✓</div>
+      <div style="font-family:'Noto Serif',serif;font-size:24px;font-weight:700;color:var(--navy);margin-bottom:8px">Password updated!</div>
+      <div style="font-size:13px;color:var(--hint);line-height:1.6;margin-bottom:32px">Your password has been reset. Sign in with your new password.</div>
+      <div class="btn btn-navy" style="width:100%" role="button" onclick="goTo('scr-login')">Sign In →</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SCREEN: DASHBOARD
+  ════════════════════════════════════════ -->
+  <div class="screen" id="scr-dashboard">
+    <div class="scroll" id="dash-scroll">
+      <!-- Hero card -->
+      <div style="margin:14px;border-radius:22px;background:var(--navy);padding:20px;position:relative;overflow:hidden">
+        <div class="hero-ring ring-lg"></div><div class="hero-ring ring-sm"></div>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;position:relative;z-index:1">
+          <div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.4);margin-bottom:3px">Good morning ☀️</div>
+            <div style="font-family:'Noto Serif',serif;font-size:19px;font-weight:700;color:#fff">Marcus</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;background:rgba(0,104,117,.35);border:1px solid rgba(0,201,167,.25);border-radius:99px;padding:4px 10px">
+            <span style="width:5px;height:5px;border-radius:50%;background:var(--aqua)"></span>
+            <span style="font-size:11px;font-weight:700;color:var(--teal-mid)">PLUS</span>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;position:relative;z-index:1">
+          <div style="background:rgba(255,255,255,.06);border-radius:14px;padding:11px 10px;text-align:center"><div style="font-family:'Noto Serif',serif;font-size:19px;font-weight:700;color:#fff">340</div><div style="font-size:9px;color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:3px">Points</div></div>
+          <div style="background:rgba(255,255,255,.06);border-radius:14px;padding:11px 10px;text-align:center"><div style="font-family:'Noto Serif',serif;font-size:19px;font-weight:700;color:#fff">3</div><div style="font-size:9px;color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:3px">Badges</div></div>
+          <div style="background:rgba(255,255,255,.06);border-radius:14px;padding:11px 10px;text-align:center"><div style="font-family:'Noto Serif',serif;font-size:19px;font-weight:700;color:#fff">42</div><div style="font-size:9px;color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:3px">Washes</div></div>
+        </div>
+      </div>
+      <!-- Gift banner -->
+      <div style="margin:0 14px 4px;border-radius:16px;background:var(--navy2);border:1px solid rgba(0,201,167,.2);display:flex;align-items:center;gap:11px;padding:13px 15px;cursor:pointer" onclick="goTo('scr-gift')">
+        <div style="width:38px;height:38px;border-radius:11px;background:rgba(0,201,167,.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🎁</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:1px">Gift waiting for you!</div><div style="font-size:11px;color:rgba(255,255,255,.45)">Your last wash earned a surprise</div></div>
+        <div style="background:var(--aqua);color:var(--navy);font-size:12px;font-weight:700;border-radius:9px;padding:7px 13px;flex-shrink:0">Reveal</div>
+      </div>
+      <!-- Quick actions -->
+      <div class="sec">
+        <div class="sec-hdr"><div class="sec-title">Quick Actions</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="background:var(--teal-bg);border-radius:16px;padding:15px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.06)" onclick="goTo('scr-plans')"><div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:9px">💳</div><div style="font-size:13px;font-weight:700;color:var(--navy)">Manage Plan</div><div style="font-size:11px;color:var(--hint);margin-top:2px">PLUS · $12/mo</div></div>
+          <div style="background:var(--gold-bg);border-radius:16px;padding:15px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.06)" onclick="goTo('scr-loyalty')"><div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:9px">🎁</div><div style="font-size:13px;font-weight:700;color:var(--navy)">Gift Cards</div><div style="font-size:11px;color:var(--hint);margin-top:2px">Buy or send one</div></div>
+          <div style="background:#eef2ff;border-radius:16px;padding:15px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.06)" onclick="goTo('scr-family')"><div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:9px">👨‍👩‍👦</div><div style="font-size:13px;font-weight:700;color:var(--navy)">Family Plan</div><div style="font-size:11px;color:var(--hint);margin-top:2px">Invite members</div></div>
+          <div style="background:#fdf2f8;border-radius:16px;padding:15px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.06)" onclick="goTo('scr-promo')"><div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:9px">🏷️</div><div style="font-size:13px;font-weight:700;color:var(--navy)">Promo Code</div><div style="font-size:11px;color:var(--hint);margin-top:2px">Enter a code</div></div>
+        </div>
+      </div>
+      <!-- Activity feed -->
+      <div class="sec" style="margin-bottom:20px">
+        <div class="sec-hdr"><div class="sec-title">Recent Activity</div><div class="sec-link" onclick="goTo('scr-billing')">View all →</div></div>
+        <div style="background:var(--white);border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border)"><div style="width:36px;height:36px;border-radius:10px;background:var(--teal-bg);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🚗</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">Wash Complete</div><div style="font-size:11px;color:var(--hint);margin-top:1px">Jacksonville · PLUS tier</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:700;color:var(--teal)">+12 pts</div><div style="font-size:10px;color:var(--hint);margin-top:2px">Jan 28</div></div></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border)"><div style="width:36px;height:36px;border-radius:10px;background:var(--gold-bg);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🎁</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">Gift Revealed</div><div style="font-size:11px;color:var(--hint);margin-top:1px">Free tier upgrade won</div></div><div style="text-align:right"><span style="font-size:10px;font-weight:700;background:var(--gold-bg);color:#7a4f00;border-radius:99px;padding:2px 8px">Free Upgrade</span><div style="font-size:10px;color:var(--hint);margin-top:4px">Jan 28</div></div></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border)"><div style="width:36px;height:36px;border-radius:10px;background:var(--teal-bg);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🚗</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">Wash Complete</div><div style="font-size:11px;color:var(--hint);margin-top:1px">Jacksonville · PLUS tier</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:700;color:var(--teal)">+12 pts</div><div style="font-size:10px;color:var(--hint);margin-top:2px">Jan 21</div></div></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 16px"><div style="width:36px;height:36px;border-radius:10px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">💳</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">Plan Renewed</div><div style="font-size:11px;color:var(--hint);margin-top:1px">PLUS · Auto-renew</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:700;color:var(--danger)">−$12.00</div><div style="font-size:10px;color:var(--hint);margin-top:2px">Jan 14</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="bnav" id="dash-nav">
+      <div class="ni active" onclick="setNav(this,'scr-dashboard')"><span class="ni-ico">🏠</span><span class="ni-lbl">Home</span></div>
+      <div class="ni" onclick="setNav(this,'scr-plans')"><span class="ni-ico">✨</span><span class="ni-lbl">Plans</span></div>
+      <div class="ni" onclick="setNav(this,'scr-loyalty')"><span class="ni-ico">⭐</span><span class="ni-lbl">Loyalty</span></div>
+      <div class="ni" onclick="setNav(this,'scr-billing')"><span class="ni-ico">🧾</span><span class="ni-lbl">Billing</span></div>
+      <div class="ni" onclick="setNav(this,'scr-profile')"><span class="ni-ico">👤</span><span class="ni-lbl">Profile</span></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SCREEN: PLANS
+  ════════════════════════════════════════ -->
+  <div class="screen" id="scr-plans">
+    <div class="scroll">
+      <div class="hero-dark"><div class="hero-ring ring-lg"></div><div class="hero-ring ring-sm"></div>
+        <div class="hero-label">Membership</div>
+        <div class="hero-title" style="margin-bottom:8px">Your Plan</div>
+        <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(0,104,117,.35);border:1px solid rgba(0,201,167,.25);border-radius:99px;padding:4px 10px;position:relative;z-index:1"><span style="width:5px;height:5px;border-radius:50%;background:var(--aqua)"></span><span style="font-size:12px;font-weight:700;color:var(--teal-mid)">PLUS Plan</span><span style="font-size:12px;color:rgba(255,255,255,.45)">· $12/mo · Active</span></div>
+      </div>
+      <div style="margin:0 14px;margin-top:-16px;position:relative;z-index:2">
+        <div class="card">
+          <div class="list-row" style="padding-top:0"><div style="flex:1;font-size:13px;color:var(--hint)">Status</div><span class="chip chip-teal">● Active</span></div>
+          <div class="list-row"><div style="flex:1;font-size:13px;color:var(--hint)">Next renewal</div><div style="font-size:13px;font-weight:600;color:var(--text)">Feb 14, 2025</div></div>
+          <div class="list-row"><div style="flex:1;font-size:13px;color:var(--hint)">Amount</div><div style="font-size:13px;font-weight:600;color:var(--text)">$12.00 / month</div></div>
+          <div class="list-row" style="padding-bottom:0;border-bottom:none"><div style="flex:1;font-size:13px;color:var(--hint)">Home site</div><div style="font-size:13px;font-weight:600;color:var(--text)">Jacksonville, FL</div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px">
+            <div class="btn btn-navy btn-sm" role="button" style="height:42px;width:100%" onclick="openModal('modal-upgrade')">Upgrade Plan</div>
+            <div class="btn btn-surface btn-sm" role="button" style="height:42px;width:100%;border:1px solid var(--border)" onclick="openModal('modal-pause')">Pause Plan</div>
+          </div>
+        </div>
+      </div>
+      <!-- All plans grid -->
+      <div class="sec">
+        <div class="sec-hdr"><div class="sec-title">All Plans</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+          <div style="background:#eff6ff;border-radius:15px;padding:14px;cursor:pointer;border:2px solid transparent" onclick="openModal('modal-switch')"><span style="font-size:20px;display:block;margin-bottom:7px">🚗</span><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted)">BASIC</div><div style="font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:var(--navy)">$8</div><div style="font-size:10px;color:var(--hint)">/month</div></div>
+          <div style="background:var(--teal-bg);border-radius:15px;padding:14px;cursor:pointer;border:2px solid var(--teal);position:relative"><div style="position:absolute;top:8px;right:8px;width:18px;height:18px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700">✓</div><span style="font-size:20px;display:block;margin-bottom:7px">✨</span><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted)">PLUS</div><div style="font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:var(--navy)">$12</div><div style="font-size:10px;color:var(--hint)">/month · current</div></div>
+          <div style="background:var(--gold-bg);border-radius:15px;padding:14px;cursor:pointer;border:2px solid transparent" onclick="openModal('modal-switch')"><span style="font-size:20px;display:block;margin-bottom:7px">💎</span><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted)">SUPER</div><div style="font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:var(--navy)">$16</div><div style="font-size:10px;color:var(--hint)">/month</div></div>
+          <div style="background:#fdf2f8;border-radius:15px;padding:14px;cursor:pointer;border:2px solid transparent" onclick="openModal('modal-switch')"><span style="font-size:20px;display:block;margin-bottom:7px">👑</span><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted)">PREMIUM</div><div style="font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:var(--navy)">$22</div><div style="font-size:10px;color:var(--hint)">/month</div></div>
+        </div>
+        <!-- Upgrade banner -->
+        <div style="background:var(--navy);border-radius:18px;padding:18px;margin-bottom:16px;position:relative;overflow:hidden">
+          <div class="hero-ring" style="width:180px;height:180px;top:-70px;right:-50px"></div>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;position:relative;z-index:1">
+            <div><div style="font-family:'Noto Serif',serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:3px">Upgrade to SUPER</div><div style="font-size:12px;color:rgba(255,255,255,.45)">$4 more · premium wash tier</div></div>
+            <div><div style="font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:var(--aqua)">$16</div><div style="font-size:11px;color:rgba(255,255,255,.4)">/month</div></div>
+          </div>
+          <div class="btn btn-aqua btn-sm" style="width:100%;height:46px;position:relative;z-index:1" role="button" onclick="openModal('modal-switch')">Upgrade to SUPER · $16/mo</div>
+        </div>
+        <!-- Manage -->
+        <div class="sec-hdr" style="margin-top:4px"><div class="sec-title">Manage Membership</div></div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);cursor:pointer" onclick="openModal('modal-pause')"><div><div style="font-size:14px;font-weight:600;color:var(--text)">Pause Membership</div><div style="font-size:11px;color:var(--hint);margin-top:2px">Pause for 1–3 months</div></div><span style="color:var(--border)">›</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer" onclick="goTo('scr-cancel')"><div><div style="font-size:14px;font-weight:600;color:var(--danger)">Cancel Membership</div><div style="font-size:11px;color:var(--hint);margin-top:2px">Effective at end of billing period</div></div><span style="color:var(--danger)">›</span></div>
+        </div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+    <div class="bnav">
+      <div class="ni" onclick="setNav(this,'scr-dashboard')"><span class="ni-ico">🏠</span><span class="ni-lbl">Home</span></div>
+      <div class="ni active" onclick="setNav(this,'scr-plans')"><span class="ni-ico">✨</span><span class="ni-lbl" style="color:var(--teal)">Plans</span></div>
+      <div class="ni" onclick="setNav(this,'scr-loyalty')"><span class="ni-ico">⭐</span><span class="ni-lbl">Loyalty</span></div>
+      <div class="ni" onclick="setNav(this,'scr-billing')"><span class="ni-ico">🧾</span><span class="ni-lbl">Billing</span></div>
+      <div class="ni" onclick="setNav(this,'scr-profile')"><span class="ni-ico">👤</span><span class="ni-lbl">Profile</span></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SCREEN: CANCEL FLOW (FTC)
+  ════════════════════════════════════════ -->
+  <div class="screen" id="scr-cancel">
+    <div style="background:var(--white);border-bottom:1px solid var(--border);padding:12px 20px;flex-shrink:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:13px;font-weight:700;color:var(--navy)" id="cancel-title">What you'll lose</div>
+        <div style="font-size:12px;color:var(--hint)" id="cancel-stepnum">Step 1 of 4</div>
+      </div>
+      <div style="display:flex;gap:4px">
+        <div class="step-seg active" id="cs1"></div><div class="step-seg" id="cs2"></div><div class="step-seg" id="cs3"></div><div class="step-seg" id="cs4"></div>
+      </div>
+    </div>
+    <div class="scroll" id="cancel-scroll">
+      <!-- Step 1 -->
+      <div id="cancel-s1" style="padding:22px 18px 32px">
+        <div style="font-family:'Noto Serif',serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:6px">Before you go...</div>
+        <div style="font-size:13px;color:var(--hint);margin-bottom:16px">Here's what you'll lose when your membership ends.</div>
+        <div style="background:var(--surf2);border-radius:13px;padding:12px 14px;display:flex;gap:9px;margin-bottom:16px"><span style="font-size:14px;flex-shrink:0;margin-top:1px">📅</span><p style="font-size:12px;color:var(--muted);line-height:1.5">Your <strong style="color:var(--navy)">PLUS membership stays active until Feb 14</strong>. You won't lose access immediately.</p></div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div class="list-row" style="padding:10px 16px"><div class="row-icon" style="background:var(--gold-bg)">🎁</div><div class="row-body"><div class="row-title" style="font-size:13px">Post-wash Gifts</div><div class="row-sub">Every wash earns a surprise</div></div><span style="font-size:13px;font-weight:700;color:var(--danger)">Gone</span></div>
+          <div class="list-row" style="padding:10px 16px"><div class="row-icon" style="background:var(--teal-bg)">💧</div><div class="row-body"><div class="row-title" style="font-size:13px">Points Balance</div><div class="row-sub">Your earned points will be lost</div></div><span style="font-size:13px;font-weight:700;color:var(--danger)">340 pts</span></div>
+          <div class="list-row" style="padding:10px 16px"><div class="row-icon" style="background:#fff3e0">🔥</div><div class="row-body"><div class="row-title" style="font-size:13px">Badges & Streaks</div><div class="row-sub">3-week streak + 3 badges</div></div><span style="font-size:13px;font-weight:700;color:var(--danger)">Lost</span></div>
+          <div class="list-row" style="padding:10px 16px"><div class="row-icon" style="background:#fce4ec">👥</div><div class="row-body"><div class="row-title" style="font-size:13px">Referral Perks</div><div class="row-sub">$10 in pending credits</div></div><span style="font-size:13px;font-weight:700;color:var(--danger)">$10.00</span></div>
+          <div class="list-row" style="padding:10px 16px;border-bottom:none"><div class="row-icon" style="background:var(--teal-bg)">✨</div><div class="row-body"><div class="row-title" style="font-size:13px">PLUS Wash Tier</div><div class="row-sub">Premium wash at Jacksonville</div></div><span style="font-size:13px;font-weight:700;color:var(--danger)">Gone</span></div>
+        </div>
+        <div style="margin-top:16px"><div class="btn btn-navy" role="button" onclick="cancelStep(2)">See alternatives →</div><div class="btn btn-surface" role="button" onclick="cancelStep(4)">Skip to cancellation</div></div>
+      </div>
+      <!-- Step 2 -->
+      <div id="cancel-s2" style="display:none;padding:22px 18px 32px">
+        <div style="font-family:'Noto Serif',serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:6px">Stay with Kinitas?</div>
+        <div style="font-size:13px;color:var(--hint);margin-bottom:16px">Consider one of these before you cancel.</div>
+        <div class="card" style="cursor:pointer" onclick="goTo('scr-plans')">
+          <div style="display:flex;align-items:flex-start;gap:13px;margin-bottom:12px"><div class="row-icon" style="background:var(--teal-bg);width:42px;height:42px;border-radius:12px">⏸️</div><div><div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:3px">Pause your membership</div><div style="font-size:12px;color:var(--hint);line-height:1.4">Pause for 1–3 months. Points, badges, and referrals are preserved.</div></div></div>
+          <div class="btn btn-teal btn-sm" style="width:100%;height:42px" role="button">Pause for 1 month →</div>
+        </div>
+        <div class="card" style="cursor:pointer" onclick="goTo('scr-plans')">
+          <div style="display:flex;align-items:flex-start;gap:13px;margin-bottom:12px"><div class="row-icon" style="background:#eff6ff;width:42px;height:42px;border-radius:12px">⬇️</div><div><div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:3px">Downgrade to Basic</div><div style="font-size:12px;color:var(--hint);line-height:1.4">Keep your membership at $8/mo. Still earn gifts, points, and badges.</div></div></div>
+          <div class="btn btn-navy btn-sm" style="width:100%;height:42px" role="button">Switch to Basic · $8/mo →</div>
+        </div>
+        <div style="text-align:center;margin-top:8px;font-size:13px;color:var(--hint);cursor:pointer" onclick="cancelStep(3)">No thanks, continue to cancel →</div>
+      </div>
+      <!-- Step 3 -->
+      <div id="cancel-s3" style="display:none;padding:22px 18px 32px">
+        <div style="font-family:'Noto Serif',serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:6px">One quick question</div>
+        <div style="font-size:13px;color:var(--hint);margin-bottom:16px">Why are you leaving? This is optional.</div>
+        <div id="cancel-reasons">
+          <div class="radio-opt" onclick="selReason(this)"><div class="radio-dot"></div><span style="font-size:14px;font-weight:500;color:var(--text)">Too expensive</span></div>
+          <div class="radio-opt" onclick="selReason(this)"><div class="radio-dot"></div><span style="font-size:14px;font-weight:500;color:var(--text)">Not washing often enough</span></div>
+          <div class="radio-opt" onclick="selReason(this)"><div class="radio-dot"></div><span style="font-size:14px;font-weight:500;color:var(--text)">Moving out of the area</span></div>
+          <div class="radio-opt" onclick="selReason(this)"><div class="radio-dot"></div><span style="font-size:14px;font-weight:500;color:var(--text)">Switching to another service</span></div>
+          <div class="radio-opt" onclick="selReason(this)"><div class="radio-dot"></div><span style="font-size:14px;font-weight:500;color:var(--text)">Temporary — I'll be back</span></div>
+          <div class="radio-opt" onclick="selReason(this)"><div class="radio-dot"></div><span style="font-size:14px;font-weight:500;color:var(--text)">Other</span></div>
+        </div>
+        <div style="margin-top:16px"><div class="btn btn-navy" role="button" onclick="cancelStep(4)">Continue →</div><div class="btn btn-surface" role="button" onclick="cancelStep(4)">Skip this step</div></div>
+      </div>
+      <!-- Step 4 -->
+      <div id="cancel-s4" style="display:none;padding:22px 18px 32px">
+        <div style="font-family:'Noto Serif',serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:6px">Confirm cancellation</div>
+        <div style="font-size:13px;color:var(--hint);margin-bottom:16px">Your membership stays active until Feb 14.</div>
+        <div style="background:var(--danger-bg);border:1px solid var(--danger-border);border-radius:16px;padding:18px;margin-bottom:14px">
+          <div style="font-size:14px;font-weight:700;color:var(--danger);margin-bottom:10px">⚠️ Cancellation summary</div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="color:#93000a">Membership</span><span style="font-weight:700;color:#690005">PLUS · $12/mo</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="color:#93000a">Benefits end</span><span style="font-weight:700;color:#690005">Feb 14, 2025</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="color:#93000a">Points forfeited</span><span style="font-weight:700;color:#690005">340 pts</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#93000a">Confirmation email</span><span style="font-weight:700;color:#690005">Sent automatically</span></div>
+        </div>
+        <div style="background:var(--surf2);border-radius:13px;padding:11px 13px;display:flex;gap:9px;margin-bottom:16px"><span style="font-size:14px;flex-shrink:0;margin-top:1px">✉️</span><p style="font-size:12px;color:var(--muted);line-height:1.5">A confirmation will be emailed to <strong style="color:var(--navy)">marcus@email.com</strong> immediately.</p></div>
+        <div class="btn btn-danger" role="button" onclick="cancelStep(5)">Yes, cancel my membership</div>
+        <div class="btn btn-surface" role="button" onclick="goTo('scr-plans')">Go back — keep my membership</div>
+      </div>
+      <!-- Step 5 -->
+      <div id="cancel-s5" style="display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 28px">
+        <div class="anim-pop" style="width:68px;height:68px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 18px">✓</div>
+        <div style="font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:var(--navy);margin-bottom:8px">Membership cancelled</div>
+        <div style="font-size:13px;color:var(--hint);line-height:1.6;margin-bottom:20px">You'll have full access until your billing period ends.</div>
+        <div style="background:var(--surf2);border-radius:14px;padding:14px 18px;margin-bottom:28px;width:100%;text-align:left">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--hint);margin-bottom:4px">Access ends on</div>
+          <div style="font-size:17px;font-weight:700;color:var(--navy)">February 14, 2025</div>
+          <div style="font-size:12px;color:var(--hint);margin-top:3px">Confirmation sent to marcus@email.com</div>
+        </div>
+        <div class="btn btn-navy" style="width:100%" role="button" onclick="goTo('scr-dashboard')">Back to Dashboard</div>
+        <div style="font-size:12px;color:var(--hint);margin-top:10px;line-height:1.5">Changed your mind? Resubscribe from the Plans screen.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SCREEN: BILLING
+  ════════════════════════════════════════ -->
+  <div class="screen" id="scr-billing">
+    <div class="scroll">
+      <div class="hero-dark"><div class="hero-ring ring-lg"></div><div class="hero-ring ring-sm"></div>
+        <div class="hero-label">Billing & Account</div>
+        <div class="hero-title" style="margin-bottom:14px">Your Account</div>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="hero-stat-val">Feb 14</div><div class="hero-stat-lbl">Next Renewal</div></div>
+          <div class="hero-stat"><div class="hero-stat-val">$12</div><div class="hero-stat-lbl">Monthly</div></div>
+          <div class="hero-stat"><div class="hero-stat-val">42</div><div class="hero-stat-lbl">Washes</div></div>
+        </div>
+      </div>
+      <div style="margin:0 14px;margin-top:-16px;position:relative;z-index:2">
+        <!-- Payment method -->
+        <div style="margin-bottom:12px">
+          <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px;margin-top:18px">Payment Method</div>
+          <div style="background:var(--navy);border-radius:18px;padding:18px;position:relative;overflow:hidden">
+            <div class="hero-ring" style="width:200px;height:200px;top:-80px;right:-60px"></div>
+            <div style="font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;position:relative;z-index:1">Visa</div>
+            <div style="font-family:'DM Mono',monospace;font-size:16px;color:rgba(255,255,255,.85);letter-spacing:2px;margin-bottom:14px;position:relative;z-index:1">•••• •••• •••• 4242</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1">
+              <span style="font-size:13px;color:rgba(255,255,255,.55)">Marcus Rivera · Exp 09/28</span>
+              <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:9px;padding:7px 14px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">Update</div>
+            </div>
+          </div>
+        </div>
+        <!-- Site selector -->
+        <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px">Home Site</div>
+        <div class="card">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
+            <div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--hint);margin-bottom:4px">Current Site</div><div style="font-family:'Noto Serif',serif;font-size:18px;font-weight:700;color:var(--navy)">Jacksonville, FL</div></div>
+            <div style="text-align:right"><div style="font-size:11px;color:var(--hint)">Resets on</div><div style="font-size:12px;font-weight:700;color:var(--navy);margin-top:3px">Feb 14, 2025</div></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <div style="flex:1;border-radius:12px;padding:10px 6px;text-align:center;border:1.5px solid var(--teal);background:var(--teal-bg);cursor:pointer"><div style="font-size:12px;font-weight:700;color:var(--navy)">JAX</div><div style="font-size:10px;margin-top:2px;color:var(--teal)">Jacksonville</div></div>
+            <div style="flex:1;border-radius:12px;padding:10px 6px;text-align:center;border:1.5px solid var(--border);background:var(--surf2);cursor:pointer"><div style="font-size:12px;font-weight:700;color:var(--navy)">TPA</div><div style="font-size:10px;margin-top:2px;color:var(--hint)">Tampa</div></div>
+            <div style="flex:1;border-radius:12px;padding:10px 6px;text-align:center;border:1.5px solid var(--border);background:var(--surf2);cursor:pointer"><div style="font-size:12px;font-weight:700;color:var(--navy)">ORL</div><div style="font-size:10px;margin-top:2px;color:var(--hint)">Orlando</div></div>
+          </div>
+          <div style="background:var(--surf3);border-radius:12px;padding:11px;text-align:center;font-size:13px;font-weight:700;color:var(--hint)">Change available Feb 14, 2025</div>
+          <div style="font-size:11px;color:var(--hint);text-align:center;margin-top:6px">You've used your site change for this billing cycle</div>
+        </div>
+        <!-- Payment history -->
+        <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px;margin-top:8px">Payment History</div>
+        <div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto">
+          <div style="padding:6px 14px;border-radius:99px;background:var(--navy);color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">All</div>
+          <div style="padding:6px 14px;border-radius:99px;background:var(--surf2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);white-space:nowrap">Renewals</div>
+          <div style="padding:6px 14px;border-radius:99px;background:var(--surf2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);white-space:nowrap">Washes</div>
+          <div style="padding:6px 14px;border-radius:99px;background:var(--surf2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);white-space:nowrap">Credits</div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="padding:6px 16px;background:var(--surf2)"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--hint)">January 2025</div></div>
+          <div class="list-row" style="padding:10px 16px"><div class="row-icon" style="background:var(--teal-bg)">🔄</div><div class="row-body"><div style="font-size:13px;font-weight:600;color:var(--text)">PLUS Plan — Renewal</div><div style="font-size:11px;color:var(--hint)">Jan 14</div></div><div style="font-size:13px;font-weight:700;color:var(--danger)">−$12.00</div></div>
+          <div class="list-row" style="padding:10px 16px"><div class="row-icon" style="background:var(--teal-bg)">🚗</div><div class="row-body"><div style="font-size:13px;font-weight:600;color:var(--text)">Single Wash — Orlando</div><div style="font-size:11px;color:var(--hint)">Jan 28</div></div><div style="font-size:13px;font-weight:700;color:var(--danger)">−$18.00</div></div>
+          <div class="list-row" style="padding:10px 16px;border-bottom:none"><div class="row-icon" style="background:var(--teal-bg)">💧</div><div class="row-body"><div style="font-size:13px;font-weight:600;color:var(--text)">Referral Credit</div><div style="font-size:11px;color:var(--hint)">Jan 9</div></div><div style="font-size:13px;font-weight:700;color:var(--teal)">+$5.00</div></div>
+        </div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+    <div class="bnav">
+      <div class="ni" onclick="setNav(this,'scr-dashboard')"><span class="ni-ico">🏠</span><span class="ni-lbl">Home</span></div>
+      <div class="ni" onclick="setNav(this,'scr-plans')"><span class="ni-ico">✨</span><span class="ni-lbl">Plans</span></div>
+      <div class="ni" onclick="setNav(this,'scr-loyalty')"><span class="ni-ico">⭐</span><span class="ni-lbl">Loyalty</span></div>
+      <div class="ni active" onclick="setNav(this,'scr-billing')"><span class="ni-ico">🧾</span><span class="ni-lbl" style="color:var(--teal)">Billing</span></div>
+      <div class="ni" onclick="setNav(this,'scr-profile')"><span class="ni-ico">👤</span><span class="ni-lbl">Profile</span></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SCREEN: LOYALTY
+  ════════════════════════════════════════ -->
+  <div class="screen" id="scr-loyalty">
+    <div class="scroll">
+      <div class="hero-dark"><div class="hero-ring ring-lg"></div><div class="hero-ring ring-sm"></div>
+        <div class="hero-label">Members · Jacksonville</div>
+        <div class="hero-title" style="margin-bottom:14px">Your Rewards</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;position:relative;z-index:1">
+          <div class="hero-stat"><div class="hero-stat-val">340</div><div class="hero-stat-lbl">Points</div></div>
+          <div class="hero-stat"><div class="hero-stat-val">3</div><div class="hero-stat-lbl">Badges</div></div>
+          <div class="hero-stat"><div class="hero-stat-val">4</div><div class="hero-stat-lbl">Gifts</div></div>
+          <div class="hero-stat"><div class="hero-stat-val">2</div><div class="hero-stat-lbl">Referrals</div></div>
+        </div>
+      </div>
+      <div style="margin:0 14px;margin-top:-16px;position:relative;z-index:2">
+        <!-- Points -->
+        <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px;margin-top:18px">Points Balance</div>
+        <div class="card">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:14px">
+            <div><span style="font-family:'Noto Serif',serif;font-size:38px;font-weight:700;color:var(--navy);line-height:1">340</span><span style="font-size:15px;color:var(--hint);margin-left:4px;font-weight:500">pts</span><div style="font-size:11px;font-weight:600;color:var(--teal);margin-top:4px">Earn 1 pt per $1 spent</div></div>
+            <div style="text-align:right"><div style="font-size:11px;color:var(--hint);margin-bottom:4px">160 pts to next reward</div><div style="font-size:13px;font-weight:700;color:var(--navy)">Next: 500 pts</div></div>
+          </div>
+          <div class="pbar" style="margin-bottom:6px"><div class="pbar-fill" style="width:68%;background:var(--teal)"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--hint);margin-bottom:14px"><span>340 pts</span><span>160 away</span></div>
+          <div class="btn btn-teal btn-sm" style="width:100%;height:44px" role="button">Redeem Points</div>
+        </div>
+        <!-- Gift history -->
+        <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px;margin-top:8px">Gift History</div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div class="list-row" style="padding:11px 16px;cursor:pointer" onclick="goTo('scr-gift')"><div class="row-icon" style="background:#fce4ec;font-size:18px">🎁</div><div class="row-body"><div style="font-size:13px;font-weight:600;color:var(--text)">Gift Waiting!</div><div style="font-size:11px;color:var(--hint);margin-top:2px">Jan 28 wash · Tap to reveal</div></div><div style="background:#ec407a;color:#fff;border-radius:99px;padding:4px 10px;font-size:12px;font-weight:700">Reveal →</div></div>
+          <div class="list-row" style="padding:11px 16px"><div class="row-icon" style="background:var(--gold-bg);font-size:18px">🌟</div><div class="row-body"><div style="font-size:13px;font-weight:600;color:var(--text)">Free Upgrade</div><div style="font-size:11px;color:var(--hint);margin-top:2px">SUPER tier for 1 wash</div></div><span class="chip chip-gold">Claimed</span></div>
+          <div class="list-row" style="padding:11px 16px;border-bottom:none"><div class="row-icon" style="background:var(--teal-bg);font-size:18px">💧</div><div class="row-body"><div style="font-size:13px;font-weight:600;color:var(--text)">$2.00 Credit</div><div style="font-size:11px;color:var(--hint);margin-top:2px">Added to account</div></div><span class="chip chip-teal">Applied</span></div>
+        </div>
+        <!-- Badges -->
+        <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px;margin-top:8px">Badges</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:8px">
+          <div class="card" style="padding:14px 10px;text-align:center"><div style="width:52px;height:52px;border-radius:50%;background:#fff3e0;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 8px">🔥</div><div style="font-size:11px;font-weight:700;color:var(--navy);line-height:1.3">On Fire</div><div style="font-size:10px;color:var(--hint);margin-top:2px">3-week streak</div><div style="font-size:9px;font-weight:600;color:var(--teal);margin-top:3px">Earned Jan 18</div></div>
+          <div class="card" style="padding:14px 10px;text-align:center"><div style="width:52px;height:52px;border-radius:50%;background:var(--teal-bg);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 8px">⭐</div><div style="font-size:11px;font-weight:700;color:var(--navy);line-height:1.3">Star Member</div><div style="font-size:10px;color:var(--hint);margin-top:2px">50 washes</div><div style="font-size:9px;font-weight:600;color:var(--teal);margin-top:3px">Earned Dec 3</div></div>
+          <div class="card" style="padding:14px 10px;text-align:center;opacity:.4"><div style="width:52px;height:52px;border-radius:50%;background:var(--gold-bg);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 8px">🏆</div><div style="font-size:11px;font-weight:700;color:var(--navy);line-height:1.3">VIP</div><div style="font-size:10px;color:var(--hint);margin-top:2px">1-year member</div><div style="font-size:9px;font-weight:600;color:var(--hint);margin-top:3px">Locked</div></div>
+        </div>
+        <!-- Referral -->
+        <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px;margin-top:8px">Referral Code</div>
+        <div class="card" style="text-align:center;padding:20px">
+          <div style="width:52px;height:52px;border-radius:50%;background:var(--teal-bg);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 12px">👥</div>
+          <div style="font-family:'Noto Serif',serif;font-size:18px;font-weight:700;color:var(--navy);margin-bottom:4px">Share the Shine</div>
+          <div style="font-size:13px;color:var(--hint);margin-bottom:16px;line-height:1.5">Give a friend a free wash. Get $5 credit when they join.</div>
+          <div style="display:flex;gap:10px;margin-bottom:14px">
+            <div style="flex:1;background:var(--surf2);border-radius:12px;padding:10px;text-align:center"><div style="font-family:'Noto Serif',serif;font-size:18px;font-weight:700;color:var(--navy)">2</div><div style="font-size:10px;color:var(--hint);font-weight:600">Referred</div></div>
+            <div style="flex:1;background:var(--surf2);border-radius:12px;padding:10px;text-align:center"><div style="font-family:'Noto Serif',serif;font-size:18px;font-weight:700;color:var(--navy)">$10</div><div style="font-size:10px;color:var(--hint);font-weight:600">Earned</div></div>
+          </div>
+          <div style="background:var(--surf2);border-radius:12px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <span style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--navy);letter-spacing:3px">MARCUS22</span>
+            <div id="ref-copy" style="background:var(--teal-bg);color:var(--teal);font-size:12px;font-weight:700;border-radius:8px;padding:6px 12px;cursor:pointer" onclick="copyRef()">COPY</div>
+          </div>
+          <div class="btn btn-navy btn-sm" style="width:100%;height:46px" role="button">Invite Friends →</div>
+        </div>
+        <!-- Gift cards -->
+        <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px;margin-top:8px">Gift Cards</div>
+        <div style="background:var(--navy);border-radius:18px;padding:20px;margin-bottom:20px;position:relative;overflow:hidden">
+          <div class="hero-ring" style="width:200px;height:200px;top:-80px;right:-60px"></div>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;position:relative;z-index:1">
+            <div><div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:#fff;margin-bottom:3px">Send a Gift Card</div><div style="font-size:12px;color:rgba(255,255,255,.45)">They choose their wash, you cover it</div></div>
+            <span style="font-size:28px;position:relative;z-index:1">🎁</span>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:14px;position:relative;z-index:1">
+            <div style="flex:1;border-radius:11px;padding:10px;text-align:center;cursor:pointer;border:1.5px solid transparent;background:rgba(255,255,255,.08)" onclick="selGc(this,'$10')"><div style="font-family:'Noto Serif',serif;font-size:16px;font-weight:700;color:#fff">$10</div></div>
+            <div id="gc-sel" style="flex:1;border-radius:11px;padding:10px;text-align:center;cursor:pointer;border:1.5px solid rgba(0,201,167,.4);background:rgba(0,201,167,.15)" onclick="selGc(this,'$25')"><div style="font-family:'Noto Serif',serif;font-size:16px;font-weight:700;color:#fff">$25</div></div>
+            <div style="flex:1;border-radius:11px;padding:10px;text-align:center;cursor:pointer;border:1.5px solid transparent;background:rgba(255,255,255,.08)" onclick="selGc(this,'$50')"><div style="font-family:'Noto Serif',serif;font-size:16px;font-weight:700;color:#fff">$50</div></div>
+            <div style="flex:1;border-radius:11px;padding:10px;text-align:center;cursor:pointer;border:1.5px solid transparent;background:rgba(255,255,255,.08)" onclick="selGc(this,'?')"><div style="font-size:16px;color:#fff">✏️</div><div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.4px;margin-top:2px">Custom</div></div>
+          </div>
+          <div id="gc-btn" class="btn btn-aqua btn-sm" style="width:100%;height:46px;position:relative;z-index:1" role="button">Buy Gift Card · $25</div>
+        </div>
+      </div>
+    </div>
+    <div class="bnav">
+      <div class="ni" onclick="setNav(this,'scr-dashboard')"><span class="ni-ico">🏠</span><span class="ni-lbl">Home</span></div>
+      <div class="ni" onclick="setNav(this,'scr-plans')"><span class="ni-ico">✨</span><span class="ni-lbl">Plans</span></div>
+      <div class="ni active" onclick="setNav(this,'scr-loyalty')"><span class="ni-ico">⭐</span><span class="ni-lbl" style="color:var(--teal)">Loyalty</span></div>
+      <div class="ni" onclick="setNav(this,'scr-billing')"><span class="ni-ico">🧾</span><span class="ni-lbl">Billing</span></div>
+      <div class="ni" onclick="setNav(this,'scr-profile')"><span class="ni-ico">👤</span><span class="ni-lbl">Profile</span></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SCREEN: GIFT REVEAL
+  ════════════════════════════════════════ -->
+  <div class="screen" id="scr-gift" style="background:var(--navy)">
+    <div class="scroll" id="gift-scroll" style="overflow:hidden">
+      <!-- Phase 1 -->
+      <div id="gift-p1" style="min-height:668px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px 28px;position:relative">
+        <div style="position:absolute;width:500px;height:500px;border-radius:50%;border:1px solid rgba(255,255,255,.04);top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+        <div style="position:absolute;width:300px;height:300px;border-radius:50%;border:1px solid rgba(255,255,255,.04);top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+        <div style="position:absolute;width:160px;height:160px;border-radius:50%;border:1px solid rgba(0,201,167,.08);top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+        <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:7px 13px;margin-bottom:20px;position:relative;z-index:1">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--aqua);flex-shrink:0"></span>
+          <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,.65)">Wash complete · Jacksonville · Just now</span>
+        </div>
+        <div style="width:64px;height:64px;border-radius:20px;background:rgba(0,201,167,.15);border:1px solid rgba(0,201,167,.25);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 18px;animation:pulse 2s ease infinite;position:relative;z-index:1">🎁</div>
+        <div style="font-family:'Noto Serif',serif;font-size:26px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:10px;position:relative;z-index:1">You earned a gift!</div>
+        <div style="font-size:14px;color:rgba(255,255,255,.42);line-height:1.6;margin-bottom:30px;position:relative;z-index:1">Your wash just finished. Something is waiting — tap below to see what you won.</div>
+        <div class="btn btn-aqua" style="position:relative;z-index:1;margin-bottom:12px" role="button" onclick="giftPhase(2)">Reveal My Gift 🎉</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.3);cursor:pointer;position:relative;z-index:1" onclick="goTo('scr-dashboard')">Save for later</div>
+      </div>
+      <!-- Phase 2 -->
+      <div id="gift-p2" style="display:none;min-height:668px;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px 28px;position:relative">
+        <div style="position:absolute;width:500px;height:500px;border-radius:50%;border:1px solid rgba(255,255,255,.04);top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+        <div style="position:absolute;width:320px;height:320px;border-radius:50%;border:1px solid rgba(255,255,255,.04);top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+        <div id="gift-box" class="anim-wiggle" style="font-size:96px;cursor:pointer;user-select:none;margin-bottom:24px;line-height:1.1;position:relative;z-index:1" onclick="giftPhase(3)">🎁</div>
+        <div style="font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;position:relative;z-index:1">Tap to open</div>
+        <div id="gift-hint" style="font-size:14px;color:rgba(255,255,255,.35);animation:fadeIn 2s ease infinite;position:relative;z-index:1">Your gift is inside...</div>
+      </div>
+      <!-- Phase 3 -->
+      <div id="gift-p3" style="display:none;padding:28px 22px;position:relative">
+        <div style="position:absolute;width:500px;height:500px;border-radius:50%;border:1px solid rgba(255,255,255,.04);top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+        <div style="position:absolute;width:320px;height:320px;border-radius:50%;border:1px solid rgba(255,255,255,.04);top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+        <div style="text-align:center;position:relative;z-index:1">
+          <div id="prize-emoji" class="anim-pop" style="font-size:68px;margin-bottom:12px;line-height:1.1;display:block">🌟</div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.35);margin-bottom:6px">You won</div>
+          <div id="prize-title" style="font-family:'Noto Serif',serif;font-size:26px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:8px">Free Upgrade</div>
+          <div id="prize-desc" style="font-size:13px;color:rgba(255,255,255,.44);line-height:1.55;margin-bottom:18px">Your next wash is bumped to SUPER tier — on us. Applies automatically on your next visit.</div>
+          <div id="prize-code-card" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);border-radius:16px;padding:16px 20px;margin-bottom:16px;text-align:center">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.28);margin-bottom:6px">Your gift code</div>
+            <div id="prize-code" style="font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:var(--aqua);letter-spacing:4px">GIFT7Z9</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.22);margin-top:5px">Expires in 30 days · Jacksonville</div>
+          </div>
+          <div id="prize-claimed-card" style="display:none;background:rgba(0,201,167,.1);border:1px solid rgba(0,201,167,.2);border-radius:16px;padding:16px 20px;margin-bottom:16px;display:none;align-items:center;gap:12px;text-align:left">
+            <div style="width:38px;height:38px;border-radius:10px;background:rgba(0,201,167,.18);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">✓</div>
+            <div><div id="claimed-title" style="font-size:13px;font-weight:700;color:var(--aqua);margin-bottom:2px">Credit applied to your account</div><div id="claimed-sub" style="font-size:11px;color:rgba(255,255,255,.35);line-height:1.4">Applies automatically on your next renewal.</div></div>
+          </div>
+          <div id="prize-action-btn" class="btn btn-aqua" role="button" onclick="prizeAction()">Copy Code</div>
+          <div class="btn" style="background:rgba(255,255,255,.07)!important;color:rgba(255,255,255,.5)!important;border:1px solid rgba(255,255,255,.1)!important;font-size:13px;height:44px;margin-top:0" role="button" onclick="goTo('scr-dashboard')">Back to Home</div>
+          <!-- Demo prize picker -->
+          <div style="display:flex;gap:6px;margin-top:8px;justify-content:center">
+            <div onclick="setPrize('upgrade')" style="background:rgba(255,255,255,.08);border:none;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.45);cursor:pointer">Upgrade</div>
+            <div onclick="setPrize('credit')" style="background:rgba(255,255,255,.08);border:none;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.45);cursor:pointer">Credit</div>
+            <div onclick="setPrize('wash')" style="background:rgba(255,255,255,.08);border:none;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.45);cursor:pointer">Wash</div>
+            <div onclick="setPrize('discount')" style="background:rgba(255,255,255,.08);border:none;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.45);cursor:pointer">Discount</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SCREEN: PROFILE
+  ════════════════════════════════════════ -->
+  <div class="screen" id="scr-profile">
+    <div class="scroll">
+      <!-- Profile hero -->
+      <div style="background:var(--white);padding:24px 20px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px">
+        <div style="width:64px;height:64px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:#fff;flex-shrink:0">MR</div>
+        <div style="flex:1"><div style="font-family:'Noto Serif',serif;font-size:19px;font-weight:700;color:var(--navy)">Marcus Rivera</div><div style="font-size:13px;color:var(--hint);margin-top:2px">marcus@email.com</div><div style="display:inline-flex;align-items:center;gap:5px;background:var(--teal-bg);border-radius:99px;padding:3px 10px;margin-top:6px"><span style="width:5px;height:5px;border-radius:50%;background:var(--teal)"></span><span style="font-size:11px;font-weight:700;color:var(--teal)">PLUS · Jacksonville</span></div></div>
+        <div style="background:var(--surf3);color:var(--navy);font-size:12px;font-weight:700;border-radius:9px;padding:6px 12px;cursor:pointer;flex-shrink:0" onclick="openModal('modal-editprofile')">Edit</div>
+      </div>
+      <div style="margin:0 14px">
+        <!-- Plate -->
+        <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px;margin-top:18px">Your Plate</div>
+        <div class="card">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
+            <div><div class="plate">ABC 1234</div><div style="font-size:11px;color:var(--hint);margin-top:8px">Florida · LPR active</div></div>
+            <span class="chip chip-teal">● Active</span>
+          </div>
+          <div style="background:var(--surf2);border-radius:12px;padding:11px 13px;display:flex;gap:9px;margin-bottom:14px"><span style="font-size:14px;flex-shrink:0;margin-top:1px">🚗</span><p style="font-size:12px;color:var(--muted);line-height:1.5">This plate is how the kiosk identifies your membership. <strong style="color:var(--navy)">One plate per membership.</strong></p></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:12px;color:var(--hint)">Change available on</span><span style="font-size:12px;font-weight:700;color:var(--navy)">Feb 14, 2025</span></div>
+          <div style="background:var(--surf3);border-radius:12px;padding:11px;text-align:center;font-size:13px;font-weight:700;color:var(--hint)">Change Plate — available Feb 14</div>
+        </div>
+        <!-- Personal info -->
+        <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px;margin-top:8px">Personal Info</div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div class="list-row" style="padding:13px 16px;cursor:pointer" onclick="openModal('modal-editprofile')"><div class="row-icon" style="background:var(--teal-bg)">👤</div><div class="row-body"><div class="row-title">Full Name</div><div class="row-sub">Marcus Rivera</div></div><span style="color:var(--border)">›</span></div>
+          <div class="list-row" style="padding:13px 16px;cursor:pointer" onclick="openModal('modal-editprofile')"><div class="row-icon" style="background:#eef2ff">✉️</div><div class="row-body"><div class="row-title">Email</div><div class="row-sub">marcus@email.com</div></div><span style="color:var(--border)">›</span></div>
+          <div class="list-row" style="padding:13px 16px;cursor:pointer;border-bottom:none" onclick="openModal('modal-editprofile')"><div class="row-icon" style="background:var(--gold-bg)">📱</div><div class="row-body"><div class="row-title">Phone</div><div class="row-sub">+1 (904) 555-0192</div></div><span style="color:var(--border)">›</span></div>
+        </div>
+        <!-- Notifications -->
+        <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px;margin-top:8px">Notifications</div>
+        <div class="card" style="padding:0;overflow:hidden" id="notif-list">
+          <div class="list-row" style="padding:13px 16px"><div class="row-icon" style="background:var(--teal-bg)">📧</div><div class="row-body"><div class="row-title">Email notifications</div><div class="row-sub">Billing receipts, updates</div></div><div class="toggle on" onclick="toggleNotif(this)"><div class="toggle-knob"></div></div></div>
+          <div class="list-row" style="padding:13px 16px"><div class="row-icon" style="background:var(--gold-bg)">🔔</div><div class="row-body"><div class="row-title">Push notifications</div><div class="row-sub">Wash complete, gifts</div></div><div class="toggle on" onclick="toggleNotif(this)"><div class="toggle-knob"></div></div></div>
+          <div class="list-row" style="padding:13px 16px"><div class="row-icon" style="background:#fce4ec">🚗</div><div class="row-body"><div class="row-title">Wash alerts</div><div class="row-sub">Notify when your car enters</div></div><div class="toggle on" onclick="toggleNotif(this)"><div class="toggle-knob"></div></div></div>
+          <div class="list-row" style="padding:13px 16px;border-bottom:none"><div class="row-icon" style="background:var(--gold-bg)">⭐</div><div class="row-body"><div class="row-title">Loyalty & rewards</div><div class="row-sub">Badges, point milestones</div></div><div class="toggle off" onclick="toggleNotif(this)"><div class="toggle-knob"></div></div></div>
+        </div>
+        <!-- Account links -->
+        <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px;margin-top:8px">Account</div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div class="list-row" style="padding:13px 16px;cursor:pointer" onclick="goTo('scr-family')"><div class="row-icon" style="background:#eef2ff">👨‍👩‍👦</div><div class="row-body"><div class="row-title">Family Plan</div><div class="row-sub">2 members · Primary</div></div><span style="color:var(--border)">›</span></div>
+          <div class="list-row" style="padding:13px 16px;cursor:pointer" onclick="goTo('scr-fleet')"><div class="row-icon" style="background:var(--surf2)">🚛</div><div class="row-body"><div class="row-title">Fleet Account</div><div class="row-sub">Rivera Logistics LLC</div></div><span style="color:var(--border)">›</span></div>
+          <div class="list-row" style="padding:13px 16px;cursor:pointer;border-bottom:none" onclick="goTo('scr-promo')"><div class="row-icon" style="background:#fdf2f8">🏷️</div><div class="row-body"><div class="row-title">Promo Codes</div><div class="row-sub">1 active discount</div></div><span style="color:var(--border)">›</span></div>
+        </div>
+        <!-- Danger actions -->
+        <div class="card" style="padding:0;overflow:hidden;margin-top:8px;margin-bottom:20px">
+          <div class="list-row" style="padding:13px 16px;cursor:pointer" onclick="goTo('scr-login')"><div class="row-icon" style="background:var(--surf2)">🚪</div><span style="font-size:14px;font-weight:600;flex:1;color:var(--muted)">Sign Out</span><span style="color:var(--border)">›</span></div>
+          <div class="list-row" style="padding:13px 16px;cursor:pointer;border-bottom:none" onclick="goTo('scr-cancel')"><div class="row-icon" style="background:var(--danger-bg)">⛔</div><span style="font-size:14px;font-weight:600;flex:1;color:var(--danger)">Cancel Membership</span><span style="color:var(--danger)">›</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="bnav">
+      <div class="ni" onclick="setNav(this,'scr-dashboard')"><span class="ni-ico">🏠</span><span class="ni-lbl">Home</span></div>
+      <div class="ni" onclick="setNav(this,'scr-plans')"><span class="ni-ico">✨</span><span class="ni-lbl">Plans</span></div>
+      <div class="ni" onclick="setNav(this,'scr-loyalty')"><span class="ni-ico">⭐</span><span class="ni-lbl">Loyalty</span></div>
+      <div class="ni" onclick="setNav(this,'scr-billing')"><span class="ni-ico">🧾</span><span class="ni-lbl">Billing</span></div>
+      <div class="ni active" onclick="setNav(this,'scr-profile')"><span class="ni-ico">👤</span><span class="ni-lbl" style="color:var(--teal)">Profile</span></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SCREEN: FLEET
+  ════════════════════════════════════════ -->
+  <div class="screen" id="scr-fleet">
+    <div style="background:var(--white);border-bottom:1px solid var(--border);padding:10px 16px;flex-shrink:0;display:flex;gap:6px">
+      <div id="fleet-vt-mgr" style="flex:1;height:32px;border-radius:8px;background:var(--navy);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="fleetView('manager',this)">🏢 Manager View</div>
+      <div id="fleet-vt-mem" style="flex:1;height:32px;border-radius:8px;background:var(--surf3);color:var(--hint);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="fleetView('member',this)">👤 Member View</div>
+    </div>
+    <div class="scroll">
+      <!-- Manager -->
+      <div id="fleet-mgr">
+        <div class="hero-dark"><div class="hero-ring ring-lg"></div><div class="hero-ring ring-sm"></div>
+          <div class="hero-label">Fleet Account · Manager</div>
+          <div style="font-family:'Noto Serif',serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:3px;position:relative;z-index:1">Rivera Logistics LLC</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:14px;position:relative;z-index:1">Account #FL-00482 · Reset cadence: Weekly (Sun)</div>
+          <div class="hero-stats">
+            <div class="hero-stat"><div class="hero-stat-val">3</div><div class="hero-stat-lbl">Plates</div></div>
+            <div class="hero-stat"><div class="hero-stat-val">$44</div><div class="hero-stat-lbl">Credit bal.</div></div>
+            <div class="hero-stat"><div class="hero-stat-val">Sun</div><div class="hero-stat-lbl">Next reset</div></div>
+          </div>
+        </div>
+        <div style="margin:0 14px;margin-top:-16px;position:relative;z-index:2">
+          <div style="display:flex;align-items:center;gap:8px;margin:18px 0 12px">
+            <div style="display:flex;gap:6px;flex:1;overflow-x:auto">
+              <div style="padding:6px 14px;border-radius:99px;background:var(--navy);color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">All (3)</div>
+              <div style="padding:6px 14px;border-radius:99px;background:var(--surf2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);white-space:nowrap">Credit (1)</div>
+              <div style="padding:6px 14px;border-radius:99px;background:var(--surf2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);white-space:nowrap">Prepaid (2)</div>
+            </div>
+            <div style="height:36px;padding:0 14px;border-radius:10px;background:var(--navy);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;cursor:pointer;flex-shrink:0" onclick="openModal('modal-addplate')">+ Add</div>
+          </div>
+          <!-- Credit plate -->
+          <div class="card" style="margin-bottom:10px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+              <div><div class="plate" style="font-size:15px;padding:7px 12px">FLT 001</div><div style="font-size:12px;font-weight:600;color:var(--text);margin-top:6px">John Martinez</div><div style="font-size:11px;color:var(--hint);margin-top:1px">Jacksonville · Credit</div></div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span class="chip chip-teal">● Credit</span><div style="background:var(--danger-bg);color:var(--danger);font-size:11px;font-weight:700;border-radius:7px;padding:4px 10px;cursor:pointer">Remove</div></div>
+            </div>
+            <div style="background:var(--surf2);border-radius:11px;padding:12px">
+              <div style="font-size:11px;color:var(--hint);margin-bottom:4px">Balance this week</div>
+              <div style="font-family:'Noto Serif',serif;font-size:24px;font-weight:700;color:var(--navy);margin-bottom:8px">$44.00</div>
+              <div style="height:1px;background:var(--border);margin-bottom:8px"></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:var(--hint)">Per wash</span><span style="font-weight:600;color:var(--text)">$11.00</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:var(--hint)">Washes this week</span><span style="font-weight:600;color:var(--text)">4 washes</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--hint)">Invoice date</span><span style="font-weight:600;color:var(--text)">Feb 28</span></div>
+            </div>
+          </div>
+          <!-- Prepaid plate 1 -->
+          <div class="card" style="margin-bottom:10px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+              <div><div class="plate" style="font-size:15px;padding:7px 12px">FLT 002</div><div style="font-size:12px;font-weight:600;color:var(--text);margin-top:6px">Sarah Chen</div><div style="font-size:11px;color:var(--hint);margin-top:1px">Tampa · Prepaid</div></div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span class="chip chip-gold">● Prepaid</span><div style="background:var(--danger-bg);color:var(--danger);font-size:11px;font-weight:700;border-radius:7px;padding:4px 10px;cursor:pointer">Remove</div></div>
+            </div>
+            <div style="background:var(--surf2);border-radius:11px;padding:12px">
+              <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:8px"><div><span style="font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:var(--navy)">8</span><span style="font-size:12px;color:var(--hint);margin-left:3px">/ 20 washes</span><div style="font-size:11px;color:var(--hint);margin-top:2px">Used this week</div></div><span style="font-size:11px;font-weight:600;color:var(--teal)">Resets Sunday</span></div>
+              <div class="pbar" style="margin-bottom:6px"><div class="pbar-fill" style="width:40%;background:var(--teal)"></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--hint)"><span>12 remaining</span><span>$160.00 / week fixed</span></div>
+            </div>
+          </div>
+          <!-- Prepaid plate 2 — near limit -->
+          <div class="card" style="margin-bottom:4px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+              <div><div class="plate" style="font-size:15px;padding:7px 12px">FLT 003</div><div style="font-size:12px;font-weight:600;color:var(--text);margin-top:6px">Mike Torres</div><div style="font-size:11px;color:var(--hint);margin-top:1px">Orlando · Prepaid</div></div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span class="chip chip-gold">● Prepaid</span><div style="background:var(--danger-bg);color:var(--danger);font-size:11px;font-weight:700;border-radius:7px;padding:4px 10px;cursor:pointer">Remove</div></div>
+            </div>
+            <div style="background:var(--danger-bg);border-radius:11px;padding:12px">
+              <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:8px"><div><span style="font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:var(--danger)">19</span><span style="font-size:12px;color:#93000a;margin-left:3px">/ 20 washes</span><div style="font-size:11px;color:#93000a;margin-top:2px">⚠️ 1 wash remaining</div></div><span style="font-size:11px;font-weight:600;color:var(--danger)">Resets Sunday</span></div>
+              <div class="pbar" style="margin-bottom:6px"><div class="pbar-fill" style="width:95%;background:var(--danger)"></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:#93000a"><span>Almost at weekly limit</span><span>$160.00 / week fixed</span></div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--hint);text-align:center;font-style:italic;margin:8px 0 12px">Reset cadence · billing type · wash limits configured by site admin</div>
+          <!-- Invoice -->
+          <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px">Current Invoice</div>
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span style="font-size:14px;font-weight:700;color:var(--navy)">January 2025</span><span class="chip chip-teal">● Open</span></div>
+            <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--muted)">FLT 001 — Credit (4 washes)</span><span style="font-weight:600">$44.00</span></div>
+            <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--muted)">FLT 002 — Prepaid (20/wk)</span><span style="font-weight:600">$160.00</span></div>
+            <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--muted)">FLT 003 — Prepaid (20/wk)</span><span style="font-weight:600">$160.00</span></div>
+            <div style="display:flex;justify-content:space-between;padding-top:10px;margin-top:2px"><span style="font-size:13px;font-weight:700;color:var(--navy)">Total due Feb 28</span><span style="font-family:'Noto Serif',serif;font-size:15px;font-weight:700;color:var(--navy)">$364.00</span></div>
+            <div style="margin-top:12px;background:var(--surf2);border-radius:11px;padding:11px;text-align:center;font-size:13px;font-weight:700;color:var(--navy);cursor:pointer;border:1px solid var(--border)">Download Invoice PDF</div>
+          </div>
+        </div>
+        <div style="height:20px"></div>
+      </div>
+      <!-- Member view -->
+      <div id="fleet-mem" style="display:none">
+        <div class="hero-dark"><div class="hero-ring ring-lg"></div>
+          <div class="hero-label">Fleet Account · Member</div>
+          <div style="font-family:'Noto Serif',serif;font-size:20px;font-weight:700;color:#fff;position:relative;z-index:1">Rivera Logistics LLC</div>
+        </div>
+        <div style="margin:0 14px;margin-top:-16px;position:relative;z-index:2">
+          <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px;margin-top:18px">Your Plate</div>
+          <div class="card" style="text-align:center;padding:20px">
+            <div class="plate" style="font-size:20px;padding:10px 18px;display:inline-block;margin-bottom:12px;letter-spacing:4px">FLT 002</div>
+            <div class="chip chip-gold" style="display:inline-flex;margin:0 auto 14px">● Prepaid · Tampa</div>
+            <div style="background:var(--surf2);border-radius:11px;padding:12px;margin-bottom:12px;text-align:left">
+              <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:8px"><div><span style="font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:var(--navy)">8</span><span style="font-size:12px;color:var(--hint);margin-left:3px">/ 20 washes</span><div style="font-size:11px;color:var(--hint);margin-top:2px">Used this week</div></div><span style="font-size:11px;font-weight:600;color:var(--teal)">Resets Sunday</span></div>
+              <div class="pbar" style="margin-bottom:6px"><div class="pbar-fill" style="width:40%;background:var(--teal)"></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--hint)"><span>12 remaining</span><span>$160.00 / week</span></div>
+            </div>
+            <div style="background:var(--surf2);border-radius:12px;padding:12px 14px;display:flex;gap:9px;text-align:left"><span style="font-size:14px;flex-shrink:0;margin-top:1px">🔒</span><p style="font-size:12px;color:var(--muted);line-height:1.5">Plate management is handled by your fleet account manager. Contact them to make changes.</p></div>
+          </div>
+        </div>
+        <div style="height:20px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SCREEN: FAMILY
+  ════════════════════════════════════════ -->
+  <div class="screen" id="scr-family">
+    <div style="background:var(--white);border-bottom:1px solid var(--border);padding:10px 16px;flex-shrink:0;display:flex;gap:6px">
+      <div id="fam-vt-pri" style="flex:1;height:32px;border-radius:8px;background:var(--navy);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="famView('primary',this)">👑 Primary Member</div>
+      <div id="fam-vt-sec" style="flex:1;height:32px;border-radius:8px;background:var(--surf3);color:var(--hint);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="famView('secondary',this)">👤 Family Member</div>
+    </div>
+    <div class="scroll">
+      <!-- Primary -->
+      <div id="fam-pri">
+        <div class="hero-dark"><div class="hero-ring ring-lg"></div><div class="hero-ring ring-sm"></div>
+          <div class="hero-label">Family Plan · Primary Account</div>
+          <div class="hero-title" style="margin-bottom:14px">Rivera Family</div>
+          <div class="hero-stats">
+            <div class="hero-stat"><div class="hero-stat-val">3</div><div class="hero-stat-lbl">Members</div></div>
+            <div class="hero-stat"><div class="hero-stat-val">20%</div><div class="hero-stat-lbl">Discount</div></div>
+            <div class="hero-stat"><div class="hero-stat-val">$28.80</div><div class="hero-stat-lbl">Combined</div></div>
+          </div>
+        </div>
+        <div style="margin:0 14px;margin-top:-16px;position:relative;z-index:2">
+          <!-- Discount banner -->
+          <div style="margin-top:18px;background:var(--navy2);border:1px solid rgba(0,201,167,.2);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:16px;position:relative;overflow:hidden">
+            <div class="hero-ring" style="width:140px;height:140px;top:-50px;right:-30px"></div>
+            <div style="width:44px;height:44px;border-radius:13px;background:rgba(0,201,167,.18);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;position:relative;z-index:1">💰</div>
+            <div style="flex:1;position:relative;z-index:1"><div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:2px">Family discount active</div><div style="font-size:12px;color:rgba(255,255,255,.45)">20% off for all members while plan is active</div></div>
+            <div style="position:relative;z-index:1;text-align:right;flex-shrink:0"><div style="font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:var(--aqua)">$7.20</div><div style="font-size:11px;color:rgba(255,255,255,.4)">saved/mo</div></div>
+          </div>
+          <!-- Members -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy)">Members (3)</div>
+            <div style="height:36px;padding:0 14px;border-radius:10px;background:var(--navy);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;cursor:pointer" onclick="openModal('modal-invite')">+ Invite</div>
+          </div>
+          <!-- Primary -->
+          <div class="card" style="margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><div style="width:44px;height:44px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif',serif;font-size:15px;font-weight:700;color:#fff;flex-shrink:0">MR</div><div style="flex:1"><div style="font-size:14px;font-weight:700;color:var(--text)">Marcus Rivera</div><div style="font-size:11px;color:var(--hint);margin-top:1px">marcus@email.com</div></div><span class="chip chip-teal">👑 Primary</span></div>
+            <div style="background:var(--surf2);border-radius:11px;padding:10px 12px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:var(--hint)">Plan</span><span style="font-weight:600;color:var(--text)">PLUS · $9.60/mo</span></div><div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--hint)">Plate</span><span class="plate" style="font-size:11px;padding:3px 8px;letter-spacing:2px">ABC 1234</span></div></div>
+          </div>
+          <!-- Sofia -->
+          <div class="card" style="margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><div style="width:44px;height:44px;border-radius:50%;background:var(--teal-bg);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif',serif;font-size:15px;font-weight:700;color:#004f58;flex-shrink:0">SR</div><div style="flex:1"><div style="font-size:14px;font-weight:700;color:var(--text)">Sofia Rivera</div><div style="font-size:11px;color:var(--hint);margin-top:1px">sofia@email.com</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span class="chip chip-grey">Member</span><div style="background:var(--danger-bg);color:var(--danger);font-size:11px;font-weight:700;border-radius:7px;padding:4px 10px;cursor:pointer">Remove</div></div></div>
+            <div style="background:var(--surf2);border-radius:11px;padding:10px 12px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:var(--hint)">Plan</span><span style="font-weight:600;color:var(--text)">PLUS · $9.60/mo</span></div><div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--hint)">Plate</span><span class="plate" style="font-size:11px;padding:3px 8px;letter-spacing:2px">XYZ 5678</span></div></div>
+          </div>
+          <!-- Carlos — pending -->
+          <div class="card" style="margin-bottom:16px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><div style="width:44px;height:44px;border-radius:50%;background:var(--surf3);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif',serif;font-size:15px;font-weight:700;color:var(--hint);flex-shrink:0">CR</div><div style="flex:1"><div style="font-size:14px;font-weight:700;color:var(--text)">Carlos Rivera</div><div style="font-size:11px;color:var(--hint);margin-top:1px">carlos@email.com</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span class="chip chip-gold">⏳ Pending</span><div style="background:var(--danger-bg);color:var(--danger);font-size:11px;font-weight:700;border-radius:7px;padding:4px 10px;cursor:pointer">Cancel</div></div></div>
+            <div style="background:var(--surf2);border-radius:11px;padding:10px 12px"><div style="font-size:12px;font-weight:600;color:var(--gold)">Invite sent · Expires in 6 days</div><div style="font-size:11px;color:var(--hint);margin-top:2px">Not yet set up</div></div>
+          </div>
+          <!-- Combined billing -->
+          <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px">Combined Billing</div>
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="color:var(--muted)">Marcus — PLUS</span><span style="font-weight:600">$9.60/mo</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="color:var(--muted)">Sofia — PLUS</span><span style="font-weight:600">$9.60/mo</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="font-size:11px;color:var(--hint)">Family discount (20%)</span><span style="font-weight:600;color:var(--teal)">−$3.84</span></div>
+            <div style="display:flex;justify-content:space-between;padding-top:10px;margin-top:2px"><span style="font-size:14px;font-weight:700;color:var(--navy)">Next billing · Feb 14</span><span style="font-family:'Noto Serif',serif;font-size:18px;font-weight:700;color:var(--navy)">$15.36</span></div>
+          </div>
+          <!-- Invite link -->
+          <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px;margin-top:8px">Invite Link</div>
+          <div class="card" style="margin-bottom:20px">
+            <p style="font-size:13px;color:var(--hint);margin-bottom:12px;line-height:1.5">Share this link with family members to join at the 20% discounted rate.</p>
+            <div style="background:var(--surf2);border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+              <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--navy);flex:1;margin-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">kinitas.app/join/RIVERA2025</span>
+              <div id="fam-copy" style="background:var(--teal-bg);color:var(--teal);font-size:12px;font-weight:700;border-radius:8px;padding:6px 12px;cursor:pointer;flex-shrink:0" onclick="famCopy()">Copy</div>
+            </div>
+            <div class="btn btn-navy btn-sm" style="width:100%;height:44px" role="button">Share Invite Link →</div>
+          </div>
+        </div>
+      </div>
+      <!-- Secondary view -->
+      <div id="fam-sec" style="display:none">
+        <div class="hero-dark"><div class="hero-ring ring-lg"></div>
+          <div class="hero-label">Family Plan · Member</div>
+          <div class="hero-title" style="margin-bottom:14px">Rivera Family</div>
+          <div class="hero-stats">
+            <div class="hero-stat"><div class="hero-stat-val">PLUS</div><div class="hero-stat-lbl">Your Plan</div></div>
+            <div class="hero-stat"><div class="hero-stat-val">20%</div><div class="hero-stat-lbl">Discount</div></div>
+            <div class="hero-stat"><div class="hero-stat-val">$9.60</div><div class="hero-stat-lbl">Your Rate</div></div>
+          </div>
+        </div>
+        <div style="margin:0 14px;margin-top:-16px;position:relative;z-index:2">
+          <div class="card" style="text-align:center;padding:20px;margin-top:18px;margin-bottom:12px">
+            <div style="width:60px;height:60px;border-radius:50%;background:var(--teal-bg);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif',serif;font-size:20px;font-weight:700;color:#004f58;margin:0 auto 12px">SR</div>
+            <div style="font-size:16px;font-weight:700;color:var(--navy)">Sofia Rivera</div>
+            <div style="font-size:12px;color:var(--hint);margin-top:2px">Member of Rivera Family plan</div>
+            <div style="display:inline-flex;align-items:center;gap:5px;background:var(--teal-bg);border-radius:99px;padding:4px 12px;margin-top:8px"><span style="width:5px;height:5px;border-radius:50%;background:var(--teal)"></span><span style="font-size:11px;font-weight:700;color:var(--teal)">PLUS · $9.60/mo · Jacksonville</span></div>
+          </div>
+          <div style="background:var(--surf2);border-radius:12px;padding:12px 14px;display:flex;gap:9px;margin-bottom:12px"><span style="font-size:14px;flex-shrink:0;margin-top:1px">🔒</span><p style="font-size:12px;color:var(--muted);line-height:1.5">Billing is managed by <strong style="color:var(--navy)">Marcus Rivera</strong>. Contact them to change plan or billing details.</p></div>
+          <div class="card" style="margin-bottom:12px;padding:0;overflow:hidden">
+            <div class="list-row" style="padding:11px 16px"><span style="font-size:13px;color:var(--hint);flex:1">Plan</span><span style="font-size:13px;font-weight:600;color:var(--text)">PLUS</span></div>
+            <div class="list-row" style="padding:11px 16px"><span style="font-size:13px;color:var(--hint);flex:1">Monthly rate</span><span style="font-size:13px;font-weight:600;color:var(--text)">$9.60 (20% off)</span></div>
+            <div class="list-row" style="padding:11px 16px"><span style="font-size:13px;color:var(--hint);flex:1">Next renewal</span><span style="font-size:13px;font-weight:600;color:var(--text)">Feb 14, 2025</span></div>
+            <div class="list-row" style="padding:11px 16px;border-bottom:none"><span style="font-size:13px;color:var(--hint);flex:1">Primary member</span><span style="font-size:13px;font-weight:600;color:var(--text)">Marcus Rivera</span></div>
+          </div>
+          <div class="btn btn-danger" role="button">Leave Family Plan</div>
+          <div style="font-size:12px;color:var(--hint);text-align:center;margin-top:8px;line-height:1.5;margin-bottom:20px">Leaving will convert you to a standard PLUS membership at $12/mo on your next billing date.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SCREEN: PROMO CODES
+  ════════════════════════════════════════ -->
+  <div class="screen" id="scr-promo">
+    <div class="scroll">
+      <div class="hero-dark"><div class="hero-ring ring-lg"></div><div class="hero-ring ring-sm"></div>
+        <div class="hero-label">Promotions</div>
+        <div class="hero-title" style="margin-bottom:6px">Promo Codes</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.42);position:relative;z-index:1">Enter a code to unlock discounts, free months, or bonus perks.</div>
+      </div>
+      <div style="margin:0 14px;margin-top:-16px;position:relative;z-index:2">
+        <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px;margin-top:18px">Enter a Code</div>
+        <div class="card">
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <input id="promo-input" class="input input-code" style="flex:1;height:52px;font-size:18px;letter-spacing:3px" placeholder="e.g. SAVE10" maxlength="16" oninput="this.value=this.value.toUpperCase();promoClear()" autocomplete="off" autocorrect="off" spellcheck="false"/>
+            <div style="height:52px;width:80px;flex-shrink:0;border-radius:13px;background:var(--navy);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:filter .15s;user-select:none" role="button" onclick="promoApply()">Apply</div>
+          </div>
+          <div id="promo-valid" style="display:none" class="alert alert-ok"><span style="flex-shrink:0;margin-top:1px">✅</span><div><div id="pv-title" style="font-weight:700;margin-bottom:1px">First month free!</div><div id="pv-sub" style="font-size:11px">Applied to your account.</div></div></div>
+          <div id="promo-invalid" style="display:none" class="alert alert-err"><span style="flex-shrink:0;margin-top:1px">❌</span><div><div style="font-weight:700;margin-bottom:1px">Invalid code</div><div style="font-size:11px">This code doesn't exist or isn't available. Check for typos.</div></div></div>
+          <div id="promo-expired" style="display:none;background:var(--gold-bg);border:1px solid var(--gold-border)" class="alert"><span style="flex-shrink:0;margin-top:1px">⏰</span><div><div style="font-weight:700;margin-bottom:1px;color:#7a4f00">Code expired</div><div id="pe-sub" style="font-size:11px;color:#854F0B">This promotion has ended.</div></div></div>
+        </div>
+        <!-- Try pills -->
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:10px 0">
+          <span style="font-size:11px;color:var(--hint);font-weight:600">Try:</span>
+          <div onclick="promoTry('FIRSTMONTH')" style="background:var(--surf2);border:1px solid var(--border);border-radius:99px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--navy);cursor:pointer;letter-spacing:1px">FIRSTMONTH</div>
+          <div onclick="promoTry('SUMMER20')" style="background:var(--surf2);border:1px solid var(--border);border-radius:99px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--navy);cursor:pointer;letter-spacing:1px">SUMMER20</div>
+          <div onclick="promoTry('EXPIRED99')" style="background:var(--surf2);border:1px solid var(--border);border-radius:99px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--navy);cursor:pointer;letter-spacing:1px">EXPIRED99</div>
+          <div onclick="promoTry('BADCODE')" style="background:var(--surf2);border:1px solid var(--border);border-radius:99px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--navy);cursor:pointer;letter-spacing:1px">BADCODE</div>
+        </div>
+        <!-- Applied discounts -->
+        <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px">Applied Discounts</div>
+        <div id="promo-list" style="background:var(--white);border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+          <div class="list-row" style="padding:14px 16px"><div class="row-icon" style="background:var(--teal-bg)">🎉</div><div class="row-body"><div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--navy);letter-spacing:1px">FIRSTMONTH</div><div style="font-size:12px;color:var(--muted);margin-top:2px">First month free — at signup</div></div><div style="text-align:right"><span class="chip chip-grey" style="font-size:10px">Used</span><div style="font-size:12px;font-weight:700;color:var(--hint);margin-top:5px">Saved $12.00</div></div></div>
+          <div class="list-row" style="padding:14px 16px;border-bottom:none"><div class="row-icon" style="background:var(--teal-bg)">⭐</div><div class="row-body"><div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--navy);letter-spacing:1px">LOYAL10</div><div style="font-size:12px;color:var(--muted);margin-top:2px">10% off for 3 months</div></div><div style="text-align:right"><span class="chip chip-teal" style="font-size:10px">● Active</span><div style="font-size:12px;font-weight:700;color:var(--teal);margin-top:5px">−$1.20/mo</div></div></div>
+        </div>
+        <!-- How it works -->
+        <div style="font-family:'Noto Serif',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px;margin-top:8px">How It Works</div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="list-row" style="padding:8px 0"><div style="width:26px;height:26px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--navy);flex-shrink:0">1</div><p style="font-size:13px;color:var(--muted);line-height:1.5;flex:1">Enter your code and tap <strong style="color:var(--navy)">Apply</strong>. Not case-sensitive.</p></div>
+          <div class="list-row" style="padding:8px 0"><div style="width:26px;height:26px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--navy);flex-shrink:0">2</div><p style="font-size:13px;color:var(--muted);line-height:1.5;flex:1">Valid codes apply <strong style="color:var(--navy)">immediately</strong>. Discounts show on your next billing statement.</p></div>
+          <div class="list-row" style="padding:8px 0;border-bottom:none"><div style="width:26px;height:26px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--navy);flex-shrink:0">3</div><p style="font-size:13px;color:var(--muted);line-height:1.5;flex:1">Codes <strong style="color:var(--navy)">cannot be combined</strong> unless the promotion allows it.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="bnav">
+      <div class="ni" onclick="setNav(this,'scr-dashboard')"><span class="ni-ico">🏠</span><span class="ni-lbl">Home</span></div>
+      <div class="ni" onclick="setNav(this,'scr-plans')"><span class="ni-ico">✨</span><span class="ni-lbl">Plans</span></div>
+      <div class="ni" onclick="setNav(this,'scr-loyalty')"><span class="ni-ico">⭐</span><span class="ni-lbl">Loyalty</span></div>
+      <div class="ni" onclick="setNav(this,'scr-billing')"><span class="ni-ico">🧾</span><span class="ni-lbl">Billing</span></div>
+      <div class="ni" onclick="setNav(this,'scr-profile')"><span class="ni-ico">👤</span><span class="ni-lbl">Profile</span></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       MODALS
+  ════════════════════════════════════════ -->
+  <!-- Plan switch -->
+  <div class="modal-overlay" id="modal-switch" onclick="closeModal('modal-switch')">
+    <div class="modal"><div class="modal-handle"></div><div class="modal-title">Switch to SUPER</div><div class="modal-sub">Change takes effect on your next billing date.</div>
+    <div style="background:var(--surf2);border-radius:12px;padding:14px;margin-bottom:4px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="color:var(--hint)">New plan</span><span style="font-weight:600;color:var(--navy)">SUPER · $16/mo</span></div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="color:var(--hint)">Current plan</span><span style="font-weight:600;color:var(--navy)">PLUS · $12/mo</span></div><div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--hint)">Effective</span><span style="font-weight:600;color:var(--navy)">Feb 14, 2025</span></div></div>
+    <div class="modal-btns"><div class="mb" style="background:var(--surf3);color:var(--navy)" onclick="closeModal('modal-switch')">Cancel</div><div class="mb" style="background:var(--navy);color:#fff" onclick="closeModal('modal-switch')">Confirm Change</div></div></div>
+  </div>
+  <!-- Pause -->
+  <div class="modal-overlay" id="modal-pause" onclick="closeModal('modal-pause')">
+    <div class="modal"><div class="modal-handle"></div><div class="modal-title">Pause Membership</div><div class="modal-sub">Your plan pauses at end of billing cycle and resumes automatically.</div>
+    <div style="background:var(--surf2);border-radius:12px;padding:14px;margin-bottom:4px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="color:var(--hint)">Pause starts</span><span style="font-weight:600;color:var(--navy)">Feb 14, 2025</span></div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="color:var(--hint)">Duration</span><span style="font-weight:600;color:var(--navy)">1 month</span></div><div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--hint)">Resumes</span><span style="font-weight:600;color:var(--navy)">Mar 14, 2025</span></div></div>
+    <div class="modal-btns"><div class="mb" style="background:var(--surf3);color:var(--navy)" onclick="closeModal('modal-pause')">Cancel</div><div class="mb" style="background:var(--teal);color:#fff" onclick="closeModal('modal-pause')">Pause Plan</div></div></div>
+  </div>
+  <!-- Upgrade -->
+  <div class="modal-overlay" id="modal-upgrade" onclick="closeModal('modal-upgrade')">
+    <div class="modal"><div class="modal-handle"></div><div class="modal-title">Upgrade Your Plan</div><div class="modal-sub">Select a plan to upgrade to.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px">
+      <div style="background:var(--gold-bg);border-radius:15px;padding:14px;cursor:pointer" onclick="closeModal('modal-upgrade')"><span style="font-size:20px;display:block;margin-bottom:7px">💎</span><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted)">SUPER</div><div style="font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:var(--navy)">$16</div><div style="font-size:10px;color:var(--hint)">/month</div></div>
+      <div style="background:#fdf2f8;border-radius:15px;padding:14px;cursor:pointer" onclick="closeModal('modal-upgrade')"><span style="font-size:20px;display:block;margin-bottom:7px">👑</span><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted)">PREMIUM</div><div style="font-family:'Noto Serif',serif;font-size:22px;font-weight:700;color:var(--navy)">$22</div><div style="font-size:10px;color:var(--hint)">/month</div></div>
+    </div>
+    <div class="mb" style="background:var(--surf3);color:var(--navy);width:100%;margin-top:12px" onclick="closeModal('modal-upgrade')">Cancel</div></div>
+  </div>
+  <!-- Edit profile -->
+  <div class="modal-overlay" id="modal-editprofile" onclick="closeModal('modal-editprofile')">
+    <div class="modal"><div class="modal-handle"></div><div class="modal-title">Edit Personal Info</div>
+    <div class="field"><label>Full Name</label><input class="input" value="Marcus Rivera"/></div>
+    <div class="field"><label>Email</label><input class="input" type="email" value="marcus@email.com"/></div>
+    <div class="field"><label>Phone</label><input class="input" type="tel" value="+1 (904) 555-0192"/></div>
+    <div class="modal-btns"><div class="mb" style="background:var(--surf3);color:var(--navy)" onclick="closeModal('modal-editprofile')">Cancel</div><div class="mb" style="background:var(--navy);color:#fff" onclick="closeModal('modal-editprofile')">Save Changes</div></div></div>
+  </div>
+  <!-- Add plate (fleet) -->
+  <div class="modal-overlay" id="modal-addplate" onclick="closeModal('modal-addplate')">
+    <div class="modal"><div class="modal-handle"></div><div class="modal-title">Add Fleet Plate</div><div class="modal-sub">Add a new plate to Rivera Logistics LLC.</div>
+    <div class="field"><label>License Plate</label><input class="input input-plate" placeholder="FLT 004" maxlength="9" oninput="this.value=this.value.toUpperCase()"/></div>
+    <div class="field"><label>Driver Name</label><input class="input" placeholder="Full name"/></div>
+    <div class="field"><label>Site</label><select class="input" style="cursor:pointer"><option>Jacksonville, FL</option><option>Tampa, FL</option><option>Orlando, FL</option></select></div>
+    <div style="background:var(--surf2);border-radius:11px;padding:11px 13px;font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:4px">Billing type and wash limits are configured by your site admin for this fleet account.</div>
+    <div class="modal-btns"><div class="mb" style="background:var(--surf3);color:var(--navy)" onclick="closeModal('modal-addplate')">Cancel</div><div class="mb" style="background:var(--navy);color:#fff" onclick="closeModal('modal-addplate')">Add Plate</div></div></div>
+  </div>
+  <!-- Invite family -->
+  <div class="modal-overlay" id="modal-invite" onclick="closeModal('modal-invite')">
+    <div class="modal"><div class="modal-handle"></div><div class="modal-title">Invite a Family Member</div><div class="modal-sub">They'll join Rivera Family at the 20% discounted rate.</div>
+    <div class="field"><label>Full Name</label><input class="input" placeholder="Their name"/></div>
+    <div class="field"><label>Email Address</label><input class="input" type="email" placeholder="their@email.com"/></div>
+    <div style="background:var(--surf2);border-radius:11px;padding:11px 13px;font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:4px">They'll set up their own plate and site after accepting. Billing added to your combined total.</div>
+    <div class="modal-btns"><div class="mb" style="background:var(--surf3);color:var(--navy)" onclick="closeModal('modal-invite')">Cancel</div><div class="mb" style="background:var(--navy);color:#fff" onclick="closeModal('modal-invite')">Send Invite</div></div></div>
+  </div>
+
+</div><!-- /phone -->
+</div><!-- /app -->
+
+<script>
+// ── Screen navigation ──────────────────────────────────────────────────────────
+let prevScreen = null;
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  // Scroll phone back to top on navigate
+  const scroll = document.getElementById(id).querySelector('.scroll');
+  if (scroll) scroll.scrollTop = 0;
+  prevScreen = id;
+}
+
+function setNav(el, screenId) {
+  document.querySelectorAll('.ni').forEach(n => { n.classList.remove('active'); n.querySelector('.ni-lbl').style.color = ''; });
+  el.classList.add('active');
+  el.querySelector('.ni-lbl').style.color = 'var(--teal)';
+  goTo(screenId);
+}
+
+// ── Modal helpers ──────────────────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ── Auth ───────────────────────────────────────────────────────────────────────
+function togglePw(id, btn) {
+  const f = document.getElementById(id);
+  f.type = f.type === 'password' ? 'text' : 'password';
+  btn.textContent = f.type === 'password' ? '👁' : '🙈';
+}
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pw = document.getElementById('login-pw').value;
+  const err = document.getElementById('login-err');
+  if (!email || !pw) { err.textContent = 'Please enter your email and password.'; err.style.display = 'flex'; return; }
+  err.style.display = 'none';
+  goTo('scr-dashboard');
+}
+
+// ── Register steps ─────────────────────────────────────────────────────────────
+let regCurrent = 1;
+const regLabels = ['Account Details', 'Your Plate', 'Choose Plan', 'Payment'];
+function regStep(n) {
+  document.getElementById('reg-s' + regCurrent).style.display = 'none';
+  regCurrent = n;
+  document.getElementById('reg-s' + n).style.display = '';
+  // Update step bar
+  for (let i = 1; i <= 4; i++) {
+    const seg = document.getElementById('rs' + i);
+    seg.classList.remove('active', 'done');
+    if (i < n) seg.classList.add('done');
+    else if (i === n) seg.classList.add('active');
+  }
+  document.getElementById('reg-step-lbl').textContent = regLabels[n - 1];
+  document.getElementById('reg-step-num').textContent = 'Step ' + n + ' of 4';
+  // Summary for step 4
+  if (n === 4) {
+    const sel = document.querySelector('.plan-card.selected');
+    const plan = sel ? sel.dataset.plan : 'PLUS';
+    const price = sel ? sel.dataset.price : '12';
+    document.getElementById('reg-summary').innerHTML = `
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="color:var(--hint)">Plan</span><span style="font-weight:600;color:var(--navy)">${plan} · $${price}/mo</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="color:var(--hint)">Plate</span><span style="font-weight:600;color:var(--navy)">${document.getElementById('reg-plate').value || 'ABC 1234'}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;border-top:1px solid var(--border);padding-top:8px;margin-top:4px"><span style="font-weight:700;color:var(--navy)">Total due today</span><span style="font-family:'Noto Serif',serif;font-size:15px;font-weight:700;color:var(--navy)">$${price}.00</span></div>`;
+  }
+  document.getElementById('reg-body').scrollTop = 0;
+}
+function selectPlan(el) {
+  document.querySelectorAll('.plan-card').forEach(c => { c.classList.remove('selected'); c.style.borderColor = 'transparent'; c.querySelector('div[style*="absolute;top:8px"]') && (c.querySelector('div[style*="absolute;top:8px"]').style.display = 'none'); });
+  el.classList.add('selected'); el.style.borderColor = 'var(--teal)';
+  document.getElementById('plan-btn').textContent = `Continue with ${el.dataset.plan} · $${el.dataset.price}/mo →`;
+}
+let termsAccepted = false;
+function toggleTerms() {
+  termsAccepted = !termsAccepted;
+  const chk = document.getElementById('terms-chk');
+  chk.style.background = termsAccepted ? 'var(--teal)' : '';
+  chk.style.borderColor = termsAccepted ? 'var(--teal)' : '';
+  chk.textContent = termsAccepted ? '✓' : '';
+  chk.style.color = '#fff';
+  chk.style.fontSize = '10px';
+  chk.style.fontWeight = '700';
+}
+
+// ── Forgot password ────────────────────────────────────────────────────────────
+function fpSend() {
+  const email = document.getElementById('fp-email').value.trim();
+  if (!email) return;
+  document.getElementById('fp-sent-email').textContent = email;
+  document.getElementById('fp-s1').style.display = 'none';
+  const s2 = document.getElementById('fp-s2');
+  s2.style.display = 'flex';
+}
+function fpReset() {
+  document.getElementById('fp-s2').style.display = 'none';
+  const s3 = document.getElementById('fp-s3');
+  s3.style.display = '';
+}
+function fpConfirm() {
+  const p1 = document.getElementById('fp-pw1').value;
+  const p2 = document.getElementById('fp-pw2').value;
+  if (!p1 || p1 !== p2) { alert("Passwords don't match."); return; }
+  document.getElementById('fp-s3').style.display = 'none';
+  const s4 = document.getElementById('fp-s4');
+  s4.style.display = 'flex'; s4.style.flexDirection = 'column';
+}
+function pwStrength(v) {
+  let s = 0;
+  if (v.length >= 8) s++;
+  if (/[A-Z]/.test(v)) s++;
+  if (/[0-9]/.test(v)) s++;
+  if (/[^A-Za-z0-9]/.test(v)) s++;
+  const colors = ['#ba1a1a','#e8a000','#e8a000','#006875','#006875'];
+  const labels = ['','Too short','Weak','Fair','Strong','Very strong'];
+  for (let i = 1; i <= 4; i++) {
+    const seg = document.getElementById('sb' + i);
+    if (seg) seg.style.background = i <= s ? colors[s - 1] : 'var(--surf3)';
+  }
+  const lbl = document.getElementById('str-lbl');
+  if (lbl) { lbl.textContent = v.length === 0 ? 'Enter a password' : labels[s] || 'Very strong'; lbl.style.color = v.length === 0 ? 'var(--hint)' : colors[s - 1] || '#006875'; }
+}
+
+// ── Cancel flow ────────────────────────────────────────────────────────────────
+let cancelCurrent = 1;
+const cancelLabels = ["What you'll lose", 'Stay with Kinitas?', 'Your reason', 'Confirm'];
+function cancelStep(n) {
+  document.getElementById('cancel-s' + cancelCurrent).style.display = 'none';
+  cancelCurrent = n;
+  const el = document.getElementById('cancel-s' + n);
+  el.style.display = n === 5 ? 'flex' : '';
+  if (n === 5) { el.style.flexDirection = 'column'; el.style.alignItems = 'center'; el.style.justifyContent = 'center'; }
+  for (let i = 1; i <= 4; i++) {
+    const seg = document.getElementById('cs' + i);
+    if (seg) { seg.classList.remove('active', 'done'); if (i < n) seg.classList.add('done'); else if (i === n) seg.classList.add('active'); }
+  }
+  if (n <= 4) {
+    const title = document.getElementById('cancel-title');
+    const num = document.getElementById('cancel-stepnum');
+    if (title) title.textContent = cancelLabels[n - 1];
+    if (num) num.textContent = 'Step ' + n + ' of 4';
+  }
+  document.getElementById('cancel-scroll').scrollTop = 0;
+}
+function selReason(el) {
+  document.querySelectorAll('#cancel-reasons .radio-opt').forEach(r => r.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+// ── Gift reveal ────────────────────────────────────────────────────────────────
+let giftPhase = function(n) {
+  const phases = ['gift-p1','gift-p2','gift-p3'];
+  phases.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+  const target = document.getElementById('gift-p' + n);
+  if (target) target.style.display = n === 2 ? 'flex' : (n === 1 ? 'flex' : 'block');
+  if (n === 2) { target.style.flexDirection = 'column'; target.style.alignItems = 'center'; target.style.justifyContent = 'center'; }
+};
+document.addEventListener('DOMContentLoaded', () => {
+  ['gift-p2','gift-p3'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+});
+
+const prizes = {
+  upgrade: { emoji:'🌟', title:'Free Upgrade', desc:'Your next wash is bumped to SUPER tier — on us.', hasCode:true, code:'GIFT7Z9', action:'Copy Code' },
+  credit:  { emoji:'💧', title:'$3.00 Credit', desc:'$3.00 has been added to your account balance.', hasCode:false, action:'Claim Reward', ct:'Credit saved to your account', cs:'Applies automatically on your next renewal.' },
+  wash:    { emoji:'🚗', title:'Free Single Wash', desc:'Use the code at the kiosk or it applies via LPR.', hasCode:true, code:'WASH4K1', action:'Copy Code' },
+  discount:{ emoji:'🎫', title:'20% Off Next Renewal', desc:'Your next renewal is discounted by 20%.', hasCode:false, action:'Claim Reward', ct:'Discount saved to your account', cs:'Applied automatically to your next renewal.' },
+};
+let prizeActed = false;
+function setPrize(type) {
+  const p = prizes[type];
+  prizeActed = false;
+  document.getElementById('prize-emoji').textContent = p.emoji;
+  document.getElementById('prize-title').textContent = p.title;
+  document.getElementById('prize-desc').textContent = p.desc;
+  const cc = document.getElementById('prize-code-card');
+  const cl = document.getElementById('prize-claimed-card');
+  const btn = document.getElementById('prize-action-btn');
+  if (p.hasCode) { cc.style.display = ''; cl.style.display = 'none'; document.getElementById('prize-code').textContent = p.code; }
+  else { cc.style.display = 'none'; cl.style.display = 'none'; }
+  btn.textContent = p.action;
+  btn.style.background = 'var(--aqua)';
+  btn.style.color = 'var(--navy)';
+}
+window._currentPrize = 'upgrade';
+function prizeAction() {
+  const type = window._currentPrize || 'upgrade';
+  const p = prizes[type];
+  const btn = document.getElementById('prize-action-btn');
+  if (prizeActed) return;
+  prizeActed = true;
+  if (p.hasCode) { btn.textContent = '✓ Copied!'; btn.style.background = 'rgba(0,201,167,.2)'; btn.style.color = 'var(--aqua)'; }
+  else {
+    btn.textContent = '✓ Claimed!'; btn.style.background = 'rgba(0,201,167,.2)'; btn.style.color = 'var(--aqua)';
+    document.getElementById('prize-code-card').style.display = 'none';
+    const cl = document.getElementById('prize-claimed-card');
+    cl.style.display = 'flex'; cl.style.alignItems = 'center'; cl.style.gap = '12px'; cl.style.textAlign = 'left';
+    document.getElementById('claimed-title').textContent = p.ct;
+    document.getElementById('claimed-sub').textContent = p.cs;
+  }
+}
+// Make setPrize also update _currentPrize
+const _origSetPrize = setPrize;
+window.setPrize = function(type) { window._currentPrize = type; _origSetPrize(type); };
+
+// ── Toggle notification ────────────────────────────────────────────────────────
+function toggleNotif(el) {
+  el.classList.toggle('on'); el.classList.toggle('off');
+}
+
+// ── Loyalty ────────────────────────────────────────────────────────────────────
+function copyRef() {
+  const btn = document.getElementById('ref-copy');
+  btn.textContent = '✓ Copied!';
+  setTimeout(() => btn.textContent = 'COPY', 2500);
+}
+function selGc(el, val) {
+  document.querySelectorAll('#scr-loyalty .hero-dark ~ * div[onclick*="selGc"]').forEach(d => { d.style.borderColor = 'transparent'; d.style.background = 'rgba(255,255,255,.08)'; });
+  el.style.borderColor = 'rgba(0,201,167,.4)'; el.style.background = 'rgba(0,201,167,.15)';
+  document.getElementById('gc-btn').textContent = `Buy Gift Card · ${val}`;
+}
+
+// ── Family ─────────────────────────────────────────────────────────────────────
+function famView(view, btn) {
+  document.getElementById('fam-pri').style.display = view === 'primary' ? '' : 'none';
+  document.getElementById('fam-sec').style.display = view === 'secondary' ? '' : 'none';
+  document.getElementById('fam-vt-pri').style.background = view === 'primary' ? 'var(--navy)' : 'var(--surf3)';
+  document.getElementById('fam-vt-pri').style.color = view === 'primary' ? '#fff' : 'var(--hint)';
+  document.getElementById('fam-vt-sec').style.background = view === 'secondary' ? 'var(--navy)' : 'var(--surf3)';
+  document.getElementById('fam-vt-sec').style.color = view === 'secondary' ? '#fff' : 'var(--hint)';
+}
+function famCopy() {
+  const btn = document.getElementById('fam-copy');
+  btn.textContent = '✓ Copied!';
+  setTimeout(() => btn.textContent = 'Copy', 2500);
+}
+
+// ── Fleet ──────────────────────────────────────────────────────────────────────
+function fleetView(view, btn) {
+  document.getElementById('fleet-mgr').style.display = view === 'manager' ? '' : 'none';
+  document.getElementById('fleet-mem').style.display = view === 'member' ? '' : 'none';
+  document.getElementById('fleet-vt-mgr').style.background = view === 'manager' ? 'var(--navy)' : 'var(--surf3)';
+  document.getElementById('fleet-vt-mgr').style.color = view === 'manager' ? '#fff' : 'var(--hint)';
+  document.getElementById('fleet-vt-mem').style.background = view === 'member' ? 'var(--navy)' : 'var(--surf3)';
+  document.getElementById('fleet-vt-mem').style.color = view === 'member' ? '#fff' : 'var(--hint)';
+}
+
+// ── Promo codes ────────────────────────────────────────────────────────────────
+const validCodes = {
+  FIRSTMONTH: { title:'First month free!', sub:'Your first billing cycle is on us.', icon:'🎉', savings:'$12.00', type:'free_month' },
+  SUMMER20:   { title:'20% off for 3 months', sub:'20% discount on your next 3 renewals.', icon:'☀️', savings:'−$2.40/mo', type:'percent' },
+  LOYAL10:    { title:'10% loyalty discount', sub:'10% off for 3 months.', icon:'⭐', savings:'−$1.20/mo', type:'percent' },
+};
+const expiredCodes = { EXPIRED99: 'This promotion ended on Dec 31, 2024.' };
+
+function promoClear() {
+  ['promo-valid','promo-invalid','promo-expired'].forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById('promo-input').style.borderColor = '';
+}
+function promoApply() {
+  const val = document.getElementById('promo-input').value.trim().toUpperCase();
+  if (!val) return;
+  promoClear();
+  const inp = document.getElementById('promo-input');
+  if (validCodes[val]) {
+    const c = validCodes[val];
+    document.getElementById('pv-title').textContent = c.title;
+    document.getElementById('pv-sub').textContent = c.sub;
+    document.getElementById('promo-valid').style.display = 'flex';
+    inp.style.borderColor = 'var(--teal)';
+    // Add to list
+    const list = document.getElementById('promo-list');
+    if (![...list.querySelectorAll('div[style*="DM Mono"]')].find(el => el.textContent === val)) {
+      const div = document.createElement('div');
+      div.className = 'list-row';
+      div.style.cssText = 'padding:14px 16px;border-top:1px solid var(--border)';
+      div.innerHTML = `<div class="row-icon" style="background:var(--teal-bg)">${c.icon}</div><div class="row-body"><div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--navy);letter-spacing:1px">${val}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">${c.title}</div></div><div style="text-align:right"><span class="chip chip-teal" style="font-size:10px">● Active</span></div>`;
+      list.appendChild(div);
+    }
+    setTimeout(() => { document.getElementById('promo-input').value = ''; }, 600);
+  } else if (expiredCodes[val]) {
+    document.getElementById('pe-sub').textContent = expiredCodes[val];
+    document.getElementById('promo-expired').style.display = 'flex';
+    inp.style.borderColor = 'var(--gold)';
+  } else {
+    document.getElementById('promo-invalid').style.display = 'flex';
+    inp.style.borderColor = 'var(--danger)';
+  }
+}
+function promoTry(code) {
+  document.getElementById('promo-input').value = code;
+  promoClear();
+  promoApply();
+}
+</script>
+</body>
+</html>
