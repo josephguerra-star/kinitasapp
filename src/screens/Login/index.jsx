@@ -1,12 +1,13 @@
 /**
  * @file Login/index.jsx
- * @description Login screen with email/password validation.
+ * @description Login screen with email/password validation against the real API.
  *
- * AI USAGE: Entry point for unauthenticated users. Validates non-empty fields
- * before navigating to Dashboard. Connects to ForgotPassword and Register flows.
+ * AI USAGE: Entry point for unauthenticated users. Calls `handleLogin` from
+ * AppContext which hits POST /carwash/auth/login. On success the context
+ * persists the JWT and navigates to Dashboard automatically.
  *
- * DEV USAGE: Replace the mock validation in `handleLogin` with a real API call
- * to your auth endpoint. Show API error messages via the `errorMessage` state.
+ * DEV USAGE: Error messages from the API are shown via the `errorMessage` state.
+ * Loading state disables the button and shows a spinner label.
  */
 import { useState } from 'react';
 import { useAppContext } from '../../context/AppContext.jsx';
@@ -16,19 +17,36 @@ import PasswordInput from '../../components/ui/PasswordInput.jsx';
 import Button from '../../components/ui/Button.jsx';
 
 export default function LoginScreen() {
-  const { navigateTo } = useAppContext();
-  const [email, setEmail]         = useState('');
-  const [password, setPassword]   = useState('');
-  const [errorMessage, setError]  = useState('');
+  const { navigateTo, handleLogin, isLoading } = useAppContext();
+  const [email, setEmail]            = useState('');
+  const [password, setPassword]      = useState('');
+  const [errorMessage, setError]     = useState('');
 
-  /** Validates fields and navigates to Dashboard on success */
-  const handleLogin = () => {
+  /**
+   * Validate fields locally, then delegate to the context's handleLogin.
+   * The context handles token persistence and dashboard navigation on success.
+   */
+  const onSubmit = async () => {
+    // ── Client-side validation ──────────────────────────────────────────────
     if (!email.trim() || !password) {
       setError('Please enter your email and password.');
       return;
     }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+
     setError('');
-    navigateTo(SCREEN_IDS.DASHBOARD);
+
+    // ── API call ────────────────────────────────────────────────────────────
+    const result = await handleLogin({ email: email.trim(), password });
+
+    if (!result.ok) {
+      setError(result.errorMessage);
+    }
+    // On success, handleLogin navigates to Dashboard automatically
   };
 
   return (
@@ -66,6 +84,7 @@ export default function LoginScreen() {
         <div className="field">
           <label>Email address</label>
           <input
+            id="login-email"
             className="input"
             type="email"
             placeholder="you@email.com"
@@ -73,6 +92,7 @@ export default function LoginScreen() {
             inputMode="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={isLoading}
           />
         </div>
 
@@ -82,6 +102,7 @@ export default function LoginScreen() {
           placeholder="••••••••"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          disabled={isLoading}
         />
 
         {/* Forgot password link */}
@@ -94,7 +115,14 @@ export default function LoginScreen() {
           </span>
         </div>
 
-        <Button variant="navy" onClick={handleLogin}>Sign In</Button>
+        <Button
+          id="login-submit"
+          variant="navy"
+          onClick={onSubmit}
+          disabled={isLoading}
+        >
+          {isLoading ? 'Signing in…' : 'Sign In'}
+        </Button>
 
         {/* Divider */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '16px 0' }}>

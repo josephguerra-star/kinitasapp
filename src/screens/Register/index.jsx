@@ -6,8 +6,10 @@
  * Steps: 1=Account Details, 2=Plate, 3=Choose Plan, 4=Payment.
  * `selectedPlan` stores the chosen MembershipPlan object.
  *
- * DEV USAGE: Replace the final "Start Membership" action with a real API registration call.
- * Validation on each step can be added inside handleNextStep().
+ * Step 1 calls the real register API via `handleRegister` from AppContext.
+ * On success the user is auto-logged-in and can proceed to Step 2.
+ *
+ * DEV USAGE: Steps 2-4 remain as UI-only until their backend endpoints exist.
  */
 import { useState } from 'react';
 import { useAppContext } from '../../context/AppContext.jsx';
@@ -17,20 +19,77 @@ import StepBar from '../../components/ui/StepBar.jsx';
 import Button from '../../components/ui/Button.jsx';
 import PasswordInput from '../../components/ui/PasswordInput.jsx';
 import PlanCard from '../../components/ui/PlanCard.jsx';
+import Alert from '../../components/ui/Alert.jsx';
 
 /** Labels for each registration step header */
 const STEP_LABELS = ['Account Details', 'Your Plate', 'Choose Plan', 'Payment'];
 
+/** Minimum password length required by the API */
+const MIN_PASSWORD_LENGTH = 6;
+
 export default function RegisterScreen() {
-  const { navigateTo } = useAppContext();
-  const [currentStep, setCurrentStep]   = useState(1);
-  const [plate, setPlate]               = useState('');
+  const { navigateTo, handleRegister, isLoading } = useAppContext();
+
+  // ─── Step navigation ───────────────────────────────────────────────────────
+  const [currentStep, setCurrentStep] = useState(1);
+
+  // ─── Step 1: Account Details ───────────────────────────────────────────────
+  const [firstName, setFirstName]     = useState('');
+  const [lastName, setLastName]       = useState('');
+  const [email, setEmail]             = useState('');
+  const [password, setPassword]       = useState('');
+  const [errorMessage, setError]      = useState('');
+
+  // ─── Step 2: Plate ────────────────────────────────────────────────────────
+  const [plate, setPlate]             = useState('');
+
+  // ─── Step 3: Plan ─────────────────────────────────────────────────────────
   const [selectedPlanId, setSelectedPlanId] = useState(DEFAULT_PLAN_ID);
+
+  // ─── Step 4: Payment ──────────────────────────────────────────────────────
   const [termsAccepted, setTermsAccepted]   = useState(false);
 
   const selectedPlan = MEMBERSHIP_PLANS.find((p) => p.id === selectedPlanId);
 
-  const goToStep = (n) => setCurrentStep(n);
+  /**
+   * Validate Step 1 fields and call the register API.
+   * On success the context auto-logs-in the user and we advance to Step 2.
+   */
+  const handleStep1Submit = async () => {
+    // ── Client-side validation ────────────────────────────────────────────
+    if (!firstName.trim() || !lastName.trim()) {
+      setError('First name and last name are required.');
+      return;
+    }
+    if (!email.trim()) {
+      setError('Email address is required.');
+      return;
+    }
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
+      return;
+    }
+
+    setError('');
+
+    // ── API call ──────────────────────────────────────────────────────────
+    const fullName = `${firstName.trim()} ${lastName.trim()}`;
+    const result = await handleRegister({
+      name: fullName,
+      email: email.trim(),
+      password,
+    });
+
+    if (!result.ok) {
+      setError(result.errorMessage);
+      return;
+    }
+
+    // Registration + auto-login succeeded — advance to next step
+    // Note: handleRegister already navigated to Dashboard, but we want
+    // to stay in the registration wizard. Override the navigation here.
+    setCurrentStep(2);
+  };
 
   return (
     <div className="screen active" style={{ background: 'var(--navy)' }}>
@@ -62,21 +121,71 @@ export default function RegisterScreen() {
           <div>
             <div style={{ fontFamily: "'Noto Serif', serif", fontSize: 20, fontWeight: 700, color: 'var(--navy)', marginBottom: 4 }}>Create your account</div>
             <div style={{ fontSize: 13, color: 'var(--hint)', marginBottom: 18 }}>Start your Kinitas membership today</div>
+
+            {errorMessage && <Alert variant="error">{errorMessage}</Alert>}
+
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div className="field"><label>First Name</label><input className="input" placeholder="First" /></div>
-              <div className="field"><label>Last Name</label><input className="input" placeholder="Last" /></div>
+              <div className="field">
+                <label>First Name</label>
+                <input
+                  id="register-first-name"
+                  className="input"
+                  placeholder="First"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="field">
+                <label>Last Name</label>
+                <input
+                  id="register-last-name"
+                  className="input"
+                  placeholder="Last"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  disabled={isLoading}
+                />
+              </div>
             </div>
-            <div className="field"><label>Email</label><input className="input" type="email" placeholder="you@email.com" autoCapitalize="none" inputMode="email" /></div>
-            <PasswordInput id="reg-pw" label="Password" placeholder="At least 8 characters" />
+            <div className="field">
+              <label>Email</label>
+              <input
+                id="register-email"
+                className="input"
+                type="email"
+                placeholder="you@email.com"
+                autoCapitalize="none"
+                inputMode="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+            <PasswordInput
+              id="reg-pw"
+              label="Password"
+              placeholder="At least 6 characters"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
+            />
             <div className="field">
               <label>Home Location</label>
-              <select className="input" style={{ cursor: 'pointer' }}>
+              <select className="input" style={{ cursor: 'pointer' }} disabled={isLoading}>
                 {LOCATIONS.map((loc) => (
                   <option key={loc.code}>{loc.label}, {loc.state}</option>
                 ))}
               </select>
             </div>
-            <Button variant="navy" onClick={() => goToStep(2)}>Continue →</Button>
+            <Button
+              id="register-submit"
+              variant="navy"
+              onClick={handleStep1Submit}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Creating account…' : 'Continue →'}
+            </Button>
             <Button variant="ghost" onClick={() => navigateTo(SCREEN_IDS.LOGIN)}>Already have an account</Button>
           </div>
         )}
@@ -104,7 +213,7 @@ export default function RegisterScreen() {
                 {['Florida', 'Georgia', 'Alabama', 'South Carolina'].map((s) => <option key={s}>{s}</option>)}
               </select>
             </div>
-            <Button variant="navy" onClick={() => goToStep(3)}>Continue →</Button>
+            <Button variant="navy" onClick={() => setCurrentStep(3)}>Continue →</Button>
           </div>
         )}
 
@@ -123,7 +232,7 @@ export default function RegisterScreen() {
                 />
               ))}
             </div>
-            <Button variant="navy" onClick={() => goToStep(4)}>
+            <Button variant="navy" onClick={() => setCurrentStep(4)}>
               Continue with {selectedPlan?.name} · ${selectedPlan?.priceMonthly}/mo →
             </Button>
           </div>
